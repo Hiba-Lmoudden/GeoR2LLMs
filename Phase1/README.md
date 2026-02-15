@@ -100,26 +100,33 @@ Le modèle Qwen2.5-0.5B est trop petit pour le français — il produit des rép
 ```
 GeoR2LLMs-Phase1/
 ├── Phase1_GeoR2LLMs_Colab.ipynb   ← Notebook principal (tout est ici)
-└── README.md                       ← Ce fichier
+├── results                        ← Resultats produits par le notebook
+    ├── fig1_comparison.png
+    ├── fig2_by_type.png
+    ├── phase1_metrics.json
+    └── phase1_predictions.csv
+├── rapport.pdf                    ← Rapport qui analyse et explique les resultats trouvés
+└── README.md                      ← Ce fichier
+
 ```
 
-Les résultats générés par le notebook (JSON, CSV, graphiques) sont sauvegardés automatiquement sur Google Drive dans `Mon Drive/GeoR2LLMs/Phase1/`.
+Les résultats générés par le notebook (JSON, CSV, graphiques) sont aussi sauvegardés automatiquement sur Google Drive dans `Mon Drive/GeoR2LLMs/Phase1/`.
 
 ---
 
 ## Feuille de route
 
 ```
-Phase 1 (Jan–Mars 2026)   En cours  
+[x]-Phase 1 (Jan–Mars 2026)    
   └─ Baseline RAG : BGE-M3 + Qwen2.5-1.5B + GeoSQA + Wikipedia
 
-Phase 2a (Mars 2026)
+[]-Phase 2a (Mars 2026)      
   └─ Comparaison LLMs : Qwen2.5-1.5B vs Llama-3.2-3B vs Mistral-3B
 
-Phase 2b (Avril 2026)
+[]-Phase 2b (Avril 2026)
   └─ Module spatial : calcul Haversine (distances), azimut (directions)
 
-Phase 2c (Avril–Mai 2026)
+[]-Phase 2c (Avril–Mai 2026)
   └─ Nouveaux datasets : GKMC, Tourism-QA
 ```
 
