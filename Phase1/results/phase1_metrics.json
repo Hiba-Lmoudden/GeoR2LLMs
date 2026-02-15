@@ -1,0 +1,70 @@
+{
+  "configuration": {
+    "llm": "Qwen/Qwen2.5-0.5B-Instruct",
+    "embeddings": "BAAI/bge-m3",
+    "chunk_size": 512,
+    "top_k": 5,
+    "n_questions": 12,
+    "n_documents": 159
+  },
+  "baseline": {
+    "exact_match": 0.25,
+    "f1": 0.34047619047619054,
+    "contains": 0.2847222222222222,
+    "latency_total_s": 49.53428363800049,
+    "by_type": {
+      "factual_simple": {
+        "count": 6.0,
+        "avg_em": 0.3333333333333333,
+        "avg_f1": 0.3333333333333333
+      },
+      "spatial_distance": {
+        "count": 2.0,
+        "avg_em": 0.0,
+        "avg_f1": 0.4
+      },
+      "spatial_direction": {
+        "count": 2.0,
+        "avg_em": 0.5,
+        "avg_f1": 0.5
+      },
+      "factual_numeric": {
+        "count": 2.0,
+        "avg_em": 0.0,
+        "avg_f1": 0.14285714285714288
+      }
+    }
+  },
+  "rag": {
+    "exact_match": 0.4166666666666667,
+    "f1": 0.39583333333333326,
+    "contains": 0.5416666666666666,
+    "latency_total_s": 51.52093768119812,
+    "by_type": {
+      "factual_simple": {
+        "count": 6.0,
+        "avg_em": 0.6666666666666666,
+        "avg_f1": 0.5
+      },
+      "spatial_distance": {
+        "count": 2.0,
+        "avg_em": 0.0,
+        "avg_f1": 0.3333333333333333
+      },
+      "spatial_direction": {
+        "count": 2.0,
+        "avg_em": 0.5,
+        "avg_f1": 0.0
+      },
+      "factual_numeric": {
+        "count": 2.0,
+        "avg_em": 0.0,
+        "avg_f1": 0.5416666666666666
+      }
+    }
+  },
+  "improvement": {
+    "exact_match": 0.16666666666666669,
+    "f1": 0.055357142857142716
+  }
+}
