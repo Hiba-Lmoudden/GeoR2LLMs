@@ -1,0 +1,55 @@
+{
+  "config": {
+    "llm_model": "Qwen/Qwen3-0.6B",
+    "embedding_model": "BAAI/bge-m3",
+    "chunk_size": 512,
+    "chunk_overlap": 50,
+    "top_k": 5,
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k_sampling": 20,
+    "max_new_tokens": 100,
+    "n_wiki_articles": 300,
+    "dataset_name": "rfr2003/Geo_Benchmark",
+    "dataset_config": "GeoSQA"
+  },
+  "dataset": {
+    "name": "rfr2003/Geo_Benchmark",
+    "config": "GeoSQA",
+    "n_questions_total": 838,
+    "n_questions_evaluated": 200,
+    "language_detected": "fr"
+  },
+  "corpus": {
+    "source": "wikimedia/wikipedia",
+    "config": "20231101.fr",
+    "n_articles": 300,
+    "n_chunks": 2527
+  },
+  "baseline": {
+    "accuracy_mcq": 0.27,
+    "exact_match": 0.0,
+    "f1": 0.028276333201562035,
+    "contains": 0.025,
+    "time_seconds": 341.08560729026794
+  },
+  "rag": {
+    "accuracy_mcq": 0.29,
+    "exact_match": 0.0,
+    "f1": 0.01562173205145044,
+    "contains": 0.035,
+    "time_seconds": 473.06427693367004
+  },
+  "retrieval": {
+    "hit_rate_at_1": 0.04,
+    "hit_rate_at_3": 0.06,
+    "hit_rate_at_5": 0.08,
+    "mrr_at_5": 0.05341666666666666
+  },
+  "improvement": {
+    "accuracy_delta": 0.019999999999999962,
+    "f1_delta": -0.012654601150111595,
+    "exact_match_delta": 0.0,
+    "contains_delta": 0.010000000000000002
+  }
+}

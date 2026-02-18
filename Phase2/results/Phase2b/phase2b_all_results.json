@@ -1,0 +1,138 @@
+{
+  "phase": "2b",
+  "dataset": "GKMC",
+  "description": "Comparaison Multi-LLMs sur GKMC avec RAG",
+  "config": {
+    "embedding_model": "BAAI/bge-m3",
+    "chunk_size": 512,
+    "chunk_overlap": 50,
+    "top_k": 5,
+    "max_new_tokens": 100,
+    "n_wiki_articles": 300,
+    "dataset_name": "rfr2003/Geo_Benchmark",
+    "dataset_config": "GKMC"
+  },
+  "n_questions": 200,
+  "n_models": 5,
+  "results": {
+    "Qwen3-0.6B": {
+      "model_id": "Qwen/Qwen3-0.6B",
+      "family": "Qwen",
+      "size_B": 0.6,
+      "baseline": {
+        "accuracy": 0.385,
+        "exact_match": 0.0,
+        "f1": 0.0649620758836566,
+        "contains": 0.14,
+        "time_s": 344.05393862724304
+      },
+      "rag": {
+        "accuracy": 0.37,
+        "exact_match": 0.0,
+        "f1": 0.021775519543978245,
+        "contains": 0.07,
+        "time_s": 519.2237050533295
+      },
+      "retrieval": {
+        "hit_rate_1": 0.03,
+        "hit_rate_3": 0.05,
+        "hit_rate_5": 0.075,
+        "mrr_5": 0.04575
+      },
+      "improvement": {
+        "accuracy_delta": -0.015000000000000013,
+        "f1_delta": -0.043186556339678356
+      }
+    },
+    "Qwen3-1.7B": {
+      "model_id": "Qwen/Qwen3-1.7B",
+      "family": "Qwen",
+      "size_B": 1.7,
+      "baseline": {
+        "accuracy": 0.59,
+        "exact_match": 0.0,
+        "f1": 0.03479114290870584,
+        "contains": 0.095,
+        "time_s": 413.066241979599
+      },
+      "rag": {
+        "accuracy": 0.61,
+        "exact_match": 0.0,
+        "f1": 0.021600773835490444,
+        "contains": 0.095,
+        "time_s": 772.9329192638397
+      },
+      "retrieval": {
+        "hit_rate_1": 0.03,
+        "hit_rate_3": 0.05,
+        "hit_rate_5": 0.075,
+        "mrr_5": 0.04575
+      },
+      "improvement": {
+        "accuracy_delta": 0.020000000000000018,
+        "f1_delta": -0.013190369073215392
+      }
+    },
+    "Llama-3.2-1B": {
+      "model_id": "meta-llama/Llama-3.2-1B-Instruct",
+      "family": "Llama",
+      "size_B": 1.0,
+      "baseline": {
+        "accuracy": 0.4,
+        "exact_match": 0.0,
+        "f1": 0.010909932479447661,
+        "contains": 0.03,
+        "time_s": 331.8655831813812
+      },
+      "rag": {
+        "accuracy": 0.305,
+        "exact_match": 0.0,
+        "f1": 0.00818902641212888,
+        "contains": 0.025,
+        "time_s": 500.6994261741638
+      },
+      "retrieval": {
+        "hit_rate_1": 0.03,
+        "hit_rate_3": 0.05,
+        "hit_rate_5": 0.075,
+        "mrr_5": 0.04575
+      },
+      "improvement": {
+        "accuracy_delta": -0.09500000000000003,
+        "f1_delta": -0.002720906067318781
+      }
+    },
+    "Llama-3.2-3B": {
+      "model_id": "meta-llama/Llama-3.2-3B-Instruct",
+      "family": "Llama",
+      "size_B": 3.0,
+      "baseline": {
+        "accuracy": 0.52,
+        "exact_match": 0.0,
+        "f1": 0.006434950205186778,
+        "contains": 0.035,
+        "time_s": 567.4170095920563
+      },
+      "rag": {
+        "accuracy": 0.475,
+        "exact_match": 0.0,
+        "f1": 0.007364953118541557,
+        "contains": 0.02,
+        "time_s": 1007.1450958251953
+      },
+      "retrieval": {
+        "hit_rate_1": 0.03,
+        "hit_rate_3": 0.05,
+        "hit_rate_5": 0.075,
+        "mrr_5": 0.04575
+      },
+      "improvement": {
+        "accuracy_delta": -0.04500000000000004,
+        "f1_delta": 0.000930002913354779
+      }
+    },
+    "Ministral-3B": {
+      "error": "Unrecognized configuration class <class 'transformers.models.mistral3.configuration_mistral3.Mistral3Config'> for this kind of AutoModel: AutoModelForCausalLM.\nModel type should be one of AfmoeConfig, ApertusConfig, ArceeConfig, AriaTextConfig, BambaConfig, BartConfig, BertConfig, BertGenerationConfig, BigBirdConfig, BigBirdPegasusConfig, BioGptConfig, BitNetConfig, BlenderbotConfig, BlenderbotSmallConfig, BloomConfig, BltConfig, CamembertConfig, LlamaConfig, CodeGenConfig, CohereConfig, Cohere2Config, CpmAntConfig, CTRLConfig, CwmConfig, Data2VecTextConfig, DbrxConfig, DeepseekV2Config, DeepseekV3Config, DiffLlamaConfig, DogeConfig, Dots1Config, ElectraConfig, Emu3Config, ErnieConfig, Ernie4_5Config, Ernie4_5_MoeConfig, Exaone4Config, FalconConfig, FalconH1Config, FalconMambaConfig, FlexOlmoConfig, FuyuConfig, GemmaConfig, Gemma2Config, Gemma3Config, Gemma3TextConfig, Gemma3nConfig, Gemma3nTextConfig, GitConfig, GlmConfig, Glm4Config, Glm4MoeConfig, Glm4MoeLiteConfig, GotOcr2Config, GPT2Config, GPT2Config, GPTBigCodeConfig, GPTNeoConfig, GPTNeoXConfig, GPTNeoXJapaneseConfig, GptOssConfig, GPTJConfig, GraniteConfig, GraniteMoeConfig, GraniteMoeHybridConfig, GraniteMoeSharedConfig, HeliumConfig, HunYuanDenseV1Config, HunYuanMoEV1Config, Jais2Config, JambaConfig, JetMoeConfig, Lfm2Config, Lfm2MoeConfig, LlamaConfig, Llama4Config, Llama4TextConfig, LongcatFlashConfig, MambaConfig, Mamba2Config, MarianConfig, MBartConfig, MegatronBertConfig, MiniMaxConfig, MiniMaxM2Config, MinistralConfig, Ministral3Config, MistralConfig, MixtralConfig, MllamaConfig, ModernBertDecoderConfig, MoshiConfig, MptConfig, MusicgenConfig, MusicgenMelodyConfig, MvpConfig, NanoChatConfig, NemotronConfig, OlmoConfig, Olmo2Config, Olmo3Config, OlmoeConfig, OpenAIGPTConfig, OPTConfig, PegasusConfig, PersimmonConfig, PhiConfig, Phi3Config, Phi4MultimodalConfig, PhimoeConfig, PLBartConfig, ProphetNetConfig, Qwen2Config, Qwen2MoeConfig, Qwen3Config, Qwen3MoeConfig, Qwen3NextConfig, RecurrentGemmaConfig, ReformerConfig, RemBertConfig, RobertaConfig, RobertaPreLayerNormConfig, RoCBertConfig, RoFormerConfig, RwkvConfig, SeedOssConfig, SmolLM3Config, SolarOpenConfig, StableLmConfig, Starcoder2Config, TrOCRConfig, VaultGemmaConfig, WhisperConfig, XGLMConfig, XLMConfig, XLMRobertaConfig, XLMRobertaXLConfig, XLNetConfig, xLSTMConfig, XmodConfig, ZambaConfig, Zamba2Config."
+    }
+  }
+}
