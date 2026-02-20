@@ -118,7 +118,7 @@ Les résultats générés par le notebook (JSON, CSV, graphiques) sont aussi sau
 
 ```
 [x]-Phase 1 (Jan–Mars 2026)    
-  └─ Baseline RAG : BGE-M3 + Qwen2.5-1.5B + GeoSQA + Wikipedia
+   └─ Baseline RAG : BGE-M3 + Qwen2.5-1.5B + GeoSQA + Wikipedia
 
 []-Phase 2a (Mars 2026)      
   └─ Comparaison LLMs : Qwen2.5-1.5B vs Llama-3.2-3B vs Mistral-3B
