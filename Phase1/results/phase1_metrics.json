@@ -1,70 +1,55 @@
 {
-  "configuration": {
-    "llm": "Qwen/Qwen2.5-0.5B-Instruct",
-    "embeddings": "BAAI/bge-m3",
+  "config": {
+    "llm_model": "Qwen/Qwen3-0.6B",
+    "embedding_model": "BAAI/bge-m3",
     "chunk_size": 512,
+    "chunk_overlap": 50,
     "top_k": 5,
-    "n_questions": 12,
-    "n_documents": 159
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k_sampling": 20,
+    "max_new_tokens": 100,
+    "n_wiki_articles": 300,
+    "dataset_name": "rfr2003/Geo_Benchmark",
+    "dataset_config": "GeoSQA"
+  },
+  "dataset": {
+    "name": "rfr2003/Geo_Benchmark",
+    "config": "GeoSQA",
+    "n_questions_total": 838,
+    "n_questions_evaluated": 200,
+    "language_detected": "fr"
+  },
+  "corpus": {
+    "source": "wikimedia/wikipedia",
+    "config": "20231101.fr",
+    "n_articles": 300,
+    "n_chunks": 2527
   },
   "baseline": {
-    "exact_match": 0.25,
-    "f1": 0.34047619047619054,
-    "contains": 0.2847222222222222,
-    "latency_total_s": 49.53428363800049,
-    "by_type": {
-      "factual_simple": {
-        "count": 6.0,
-        "avg_em": 0.3333333333333333,
-        "avg_f1": 0.3333333333333333
-      },
-      "spatial_distance": {
-        "count": 2.0,
-        "avg_em": 0.0,
-        "avg_f1": 0.4
-      },
-      "spatial_direction": {
-        "count": 2.0,
-        "avg_em": 0.5,
-        "avg_f1": 0.5
-      },
-      "factual_numeric": {
-        "count": 2.0,
-        "avg_em": 0.0,
-        "avg_f1": 0.14285714285714288
-      }
-    }
+    "accuracy_mcq": 0.245,
+    "exact_match": 0.0,
+    "f1": 0.02985320173764632,
+    "contains": 0.03,
+    "time_seconds": 353.6365256309509
   },
   "rag": {
-    "exact_match": 0.4166666666666667,
-    "f1": 0.39583333333333326,
-    "contains": 0.5416666666666666,
-    "latency_total_s": 51.52093768119812,
-    "by_type": {
-      "factual_simple": {
-        "count": 6.0,
-        "avg_em": 0.6666666666666666,
-        "avg_f1": 0.5
-      },
-      "spatial_distance": {
-        "count": 2.0,
-        "avg_em": 0.0,
-        "avg_f1": 0.3333333333333333
-      },
-      "spatial_direction": {
-        "count": 2.0,
-        "avg_em": 0.5,
-        "avg_f1": 0.0
-      },
-      "factual_numeric": {
-        "count": 2.0,
-        "avg_em": 0.0,
-        "avg_f1": 0.5416666666666666
-      }
-    }
+    "accuracy_mcq": 0.27,
+    "exact_match": 0.0,
+    "f1": 0.011432157698371186,
+    "contains": 0.025,
+    "time_seconds": 495.6391487121582
+  },
+  "retrieval": {
+    "hit_rate_at_1": 0.04,
+    "hit_rate_at_3": 0.06,
+    "hit_rate_at_5": 0.08,
+    "mrr_at_5": 0.05341666666666666
   },
   "improvement": {
-    "exact_match": 0.16666666666666669,
-    "f1": 0.055357142857142716
+    "accuracy_delta": 0.025000000000000022,
+    "f1_delta": -0.018421044039275133,
+    "exact_match_delta": 0.0,
+    "contains_delta": -0.0049999999999999975
   }
 }

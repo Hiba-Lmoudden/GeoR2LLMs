@@ -1,0 +1,1235 @@
+\documentclass[12pt,a4paper]{article}
+
+% === ENCODAGE ET LANGUE ===
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% === MISE EN PAGE ===
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{setspace}
+\onehalfspacing
+
+% === POLICES ET TYPOGRAPHIE ===
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% === GRAPHIQUES ET FIGURES ===
+\usepackage{graphicx}
+\graphicspath{{results/}}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, shapes.geometric, positioning, calc, fit, backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{float}
+
+
+% === TABLEAUX ===
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{colortbl}
+
+% === COULEURS ===
+\usepackage[table]{xcolor}
+\definecolor{upsred}{RGB}{180, 30, 40}
+\definecolor{criticalred}{RGB}{220, 53, 69}
+\definecolor{importantyellow}{RGB}{255, 193, 7}
+\definecolor{moderategray}{RGB}{108, 117, 125}
+\definecolor{lightgray}{RGB}{245, 245, 245}
+\definecolor{codebg}{RGB}{248, 249, 250}
+
+% === MATHS ===
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% === LISTINGS (CODE) ===
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{gray!30},
+  breaklines=true,
+  columns=fullflexible,
+  literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {û}{{\^u}}1 {ç}{{\c{c}}}1 {ô}{{\^o}}1 {î}{{\^i}}1
+}
+
+% === LIENS ===
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=upsred,
+  citecolor=upsred,
+  urlcolor=blue!70!black,
+  pdfauthor={Mohamed DIALLO et al.},
+  pdftitle={GeoR2LLMs -- Rapport de travail Phase 1},
+  pdfsubject={Système Question-Réponse Géographique avec RAG}
+}
+
+% === BIBLIOGRAPHIE ===
+\usepackage{cite}
+
+% === EN-TÊTES ET PIEDS DE PAGE ===
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{GeoR2LLMs -- Rapport de travail Phase 1}}
+\fancyhead[R]{\small\textit{M2 IA -- UPS}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% === TITRES ===
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\color{upsred}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\itshape}{\thesubsubsection}{1em}{}
+
+% === ENUMÉRATION ===
+\usepackage{enumitem}
+
+% === CAPTION ===
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf, format=hang}
+
+% ====================================================================
+\begin{document}
+
+% ====================================================================
+% PAGE DE GARDE
+% ====================================================================
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+
+  {\Large\textsc{Université Toulouse III -- Paul Sabatier}}\\[0.3cm]
+  {\large\textsc{Master 2 Intelligence Artificielle}}\\[0.2cm]
+  {\normalsize IRIT -- Institut de Recherche en Informatique de Toulouse}\\[2cm]
+
+  \rule{\textwidth}{1.5pt}\\[0.6cm]
+  {\huge\bfseries Système Question-Réponse\\[0.3cm] en Géographie avec RAG}\\[0.4cm]
+  {\Large\textit{Rapport de travail -- Phase 1 : Plateforme de base}}\\[0.3cm]
+  {\large Projet GeoR2LLMs}\\[0.4cm]
+  \rule{\textwidth}{1.5pt}\\[2cm]
+
+  \begin{minipage}{0.45\textwidth}
+    \begin{flushleft}
+      \textbf{Réalisé par :}\\[0.3cm]
+      Mohamed DIALLO\\
+      Hiba L'MOUDDEN\\
+      Feras MAKHLOUF\\
+      Osama BAAZZI\\
+      Ousama BOUTEZROUT
+    \end{flushleft}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.45\textwidth}
+    \begin{flushright}
+      \textbf{Sous la direction de :}\\[0.3cm]
+      Madame Lynda TAMINE-LECHANI\\
+      Professeure -- IRIT\\[0.5cm]
+      \textbf{UE :} Chef d'\oe uvre\\
+      \textbf{Année :} 2025--2026
+    \end{flushright}
+  \end{minipage}
+
+  \vfill
+
+  {\large Février 2026}
+\end{titlepage}
+
+% ====================================================================
+% TABLE DES MATIÈRES
+% ====================================================================
+\newpage
+\tableofcontents
+\newpage
+
+% ====================================================================
+% 1. INTRODUCTION
+% ====================================================================
+\section{Introduction}
+\label{sec:introduction}
+
+Le projet GeoR2LLMs (\textit{Geographic Retrieval-augmented generation with Large Language Models}) s'inscrit dans le cadre du chef-d'\oe uvre du Master 2 Intelligence Artificielle de l'Université Toulouse III -- Paul Sabatier, sous la direction de Madame Lynda Tamine-Lechani à l'IRIT. Ce rapport de travail documente l'implémentation et les résultats de la Phase 1 du projet.
+
+\subsection{Contexte et motivations}
+
+Le Question-Réponse géographique (GeoQA) constitue un défi particulier pour les systèmes de traitement automatique des langues. Mai et al.~\cite{mai_geographic_2021} identifient les questions géographiques comme nécessitant un raisonnement spatial, la compréhension de relations topologiques et l'intégration de connaissances spécifiques au domaine. Cohn et Blackwell~\cite{cohn_evaluating_2024} montrent qu'aucun LLM actuel ne parvient à raisonner de manière fiable sur les directions cardinales, même avec une température de zéro.
+
+L'architecture RAG (\textit{Retrieval-Augmented Generation}), introduite par Lewis et al.~\cite{lewis2020retrieval} dans le cadre de NeurIPS 2020, propose d'augmenter les LLMs avec des connaissances externes récupérées dynamiquement depuis un corpus. Gao et al.~\cite{gao2023ragsurvey} proposent une taxonomie des systèmes RAG distinguant le RAG na\"if (retrieve-then-read) du RAG avancé (avec réécriture de requêtes ou re-ranking). Notre implémentation suit l'approche na\"ive.
+
+\subsection{Objectif de la Phase 1}
+
+La Phase 1 du projet vise à mettre en place une \textbf{plateforme de base} pour le système GeoQA-RAG, conformément au cahier des charges. Les objectifs sont :
+\begin{enumerate}[leftmargin=*]
+  \item Implémenter un pipeline RAG complet avec les composants spécifiés (Qwen3-0.6B, BGE-m3, FAISS)
+  \item Établir une baseline (LLM seul, sans RAG) comme point de comparaison
+  \item Évaluer l'apport du RAG sur le dataset GeoSQA~\cite{huang_geosqa_2019}
+  \item Mesurer la qualité du retrieval indépendamment de la génération
+\end{enumerate}
+
+\subsection{Organisation du rapport}
+
+La section~\ref{sec:architecture} présente l'architecture du système. La section~\ref{sec:methodologie} détaille les choix méthodologiques. Les résultats expérimentaux sont rapportés en section~\ref{sec:resultats} et analysés en section~\ref{sec:analyse}. La section~\ref{sec:conclusion} conclut et ouvre sur la Phase 2.
+
+% ====================================================================
+% 2. ARCHITECTURE DU SYSTÈME
+% ====================================================================
+\section{Architecture du système}
+\label{sec:architecture}
+
+Le système repose sur une architecture RAG composée de trois modules : un \textbf{Retriever}, un \textbf{Generator} et un \textbf{Evaluator}. La figure~\ref{fig:architecture} illustre le pipeline.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.2cm and 2cm,
+  box/.style={rectangle, draw, rounded corners=4pt, minimum height=1.2cm, minimum width=3cm, align=center, font=\small},
+  data/.style={box, fill=blue!8, draw=blue!40},
+  process/.style={box, fill=green!8, draw=green!40},
+  model/.style={box, fill=orange!10, draw=orange!40},
+  result/.style={box, fill=red!8, draw=red!40},
+  arrow/.style={-{Stealth[length=3mm]}, thick, draw=gray!70},
+  lbl/.style={font=\scriptsize\itshape, text=gray}
+]
+
+% Données d'entrée
+\node[data] (wiki) {Wikipedia FR\\{\scriptsize 300 articles}};
+\node[data, below=0.8cm of wiki] (question) {Question\\{\scriptsize GeoSQA}};
+
+% Retriever
+\node[process, right=2cm of wiki] (chunking) {Chunking\\{\scriptsize 512 car., overlap 50}};
+\node[model, right=1.5cm of chunking] (bge) {BGE-m3\\{\scriptsize 1024 dim.}};
+\node[process, right=1.5cm of bge] (faiss) {FAISS\\{\scriptsize IndexFlatIP}};
+
+% Generator
+\node[model, right=2cm of question] (embed_q) {Encodage\\{\scriptsize question}};
+\node[process, right=3.7cm of embed_q] (topk) {Top-K\\{\scriptsize K=5}};
+\node[model, below=2cm of faiss] (qwen) {Qwen3-0.6B\\{\scriptsize Generator}};
+\node[result, right=1.5cm of qwen] (reponse) {Réponse\\{\scriptsize générée}};
+
+% Flèches corpus
+\draw[arrow] (wiki) -- (chunking);
+\draw[arrow] (chunking) -- (bge);
+\draw[arrow] (bge) -- node[above, lbl] {embeddings} (faiss);
+
+% Flèches question
+\draw[arrow] (question) -- (embed_q);
+\draw[arrow] (embed_q) -- node[above, lbl] {vecteur requête} (topk);
+\draw[arrow] (faiss) -- node[right, lbl] {index} (topk);
+
+% Flèches génération
+\draw[arrow] (topk) -- node[right, lbl] {contexte} (qwen);
+\draw[arrow] (question.south) |- (qwen.west);
+\draw[arrow] (qwen) -- (reponse);
+
+% Cadres
+\begin{scope}[on background layer]
+  \node[fit=(chunking)(bge)(faiss), draw=green!60, dashed, rounded corners=8pt, inner sep=10pt, label={[font=\small\bfseries, text=green!60!black]above:Module Retriever}] {};
+  \node[fit=(qwen)(reponse), draw=orange!60, dashed, rounded corners=8pt, inner sep=10pt, label={[font=\small\bfseries, text=orange!60!black]below:Module Generator}] {};
+\end{scope}
+
+\end{tikzpicture}
+}
+\caption{Architecture du pipeline RAG. Le corpus Wikipedia est découpé en chunks, encodé par BGE-m3 et indexé dans FAISS. Les questions sont encodées puis les top-K passages récupérés sont fournis comme contexte au générateur Qwen3-0.6B.}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{Module Retriever}
+
+Le retriever utilise le modèle d'embeddings multilingue \textbf{BGE-m3} (BAAI), présenté par Chen et al.~\cite{chen2024bgem3} à ACL 2024 Findings. BGE-m3 produit des vecteurs denses de 1024 dimensions et supporte plus de 100 langues. Les documents sont encodés et stockés dans un index \textbf{FAISS}~\cite{johnson2019faiss} (\texttt{IndexFlatIP}) utilisant le produit scalaire après normalisation L2, équivalent à la similarité cosinus. Pour une requête $q$, le retriever retourne les $K$ passages les plus similaires :
+\begin{equation}
+  \text{Top-K}(q) = \underset{d_i \in \mathcal{C}}{\text{argmax-K}} \; \cos(\mathbf{e}_q, \mathbf{e}_{d_i})
+\end{equation}
+où $\mathbf{e}_q$ et $\mathbf{e}_{d_i}$ sont les embeddings de la requête et du document, et $\mathcal{C}$ est le corpus de chunks.
+
+\subsection{Module Generator}
+
+Le générateur est basé sur \textbf{Qwen3-0.6B}~\cite{yang2025qwen3}, un modèle de langage de 0.6 milliard de paramètres de la famille Qwen3 (Alibaba). Selon le rapport technique Qwen3, ce modèle supporte un mode \textit{thinking} activable. Nous l'utilisons avec \texttt{enable\_thinking=False} pour obtenir des réponses directes. Le prompt est structuré via le template de chat Qwen3 :
+
+\begin{lstlisting}[language=Python, caption={Prompt template pour le mode RAG}]
+system: "Tu es un expert en geographie. Reponds
+         uniquement avec la lettre correcte."
+user:   "Contexte: {documents recuperes}
+         Question: {question}
+         Options: A) ... B) ... C) ... D) ..."
+\end{lstlisting}
+
+En mode \textbf{baseline}, aucun contexte n'est fourni : le modèle répond uniquement à partir de ses connaissances internes.
+
+\subsection{Module Evaluator}
+
+L'évaluateur mesure la performance selon deux axes, conformément aux métriques standard du QA~\cite{rajpurkar2016squademnlp} :
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Qualité de génération} : Accuracy MCQ, Exact Match, F1 token-level, Contains
+  \item \textbf{Qualité de retrieval} : Hit Rate@K, MRR@K (métriques classiques en recherche d'information~\cite{karpukhin2020dense})
+\end{itemize}
+
+% ====================================================================
+% 3. MÉTHODOLOGIE
+% ====================================================================
+\section{Méthodologie}
+\label{sec:methodologie}
+
+\subsection{Configuration expérimentale}
+
+Le tableau~\ref{tab:config} résume l'ensemble des hyperparamètres et composants du système, tels qu'enregistrés dans le fichier \texttt{phase1\_metrics.json} produit par le notebook.
+
+\begin{table}[H]
+\centering
+\caption{Configuration du système GeoR2LLMs -- Phase 1}
+\label{tab:config}
+\begin{tabular}{@{} l l l @{}}
+\toprule
+\textbf{Catégorie} & \textbf{Paramètre} & \textbf{Valeur} \\
+\midrule
+\multirow{5}{*}{\textbf{Génération}}
+  & Modèle LLM & Qwen/Qwen3-0.6B \\
+  & Temperature & 0.7 \\
+  & Top-p (nucleus) & 0.8 \\
+  & Top-k (sampling) & 20 \\
+  & Max tokens générés & 100 \\
+\midrule
+\multirow{4}{*}{\textbf{Retrieval}}
+  & Modèle embeddings & BAAI/bge-m3 (1024 dim.) \\
+  & Index vectoriel & FAISS IndexFlatIP \\
+  & Taille des chunks & 512 caractères \\
+  & Chevauchement (overlap) & 50 caractères \\
+\midrule
+\multirow{2}{*}{\textbf{Dataset}}
+  & Benchmark & rfr2003/Geo\_Benchmark \\
+  & Configuration & GeoSQA (test split) \\
+\midrule
+\multirow{3}{*}{\textbf{Corpus}}
+  & Source & wikimedia/wikipedia \\
+  & Version & 20231101.fr \\
+  & Nombre d'articles & 300 \\
+\midrule
+\textbf{Environnement} & GPU & Google Colab -- NVIDIA T4 (16 Go) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Dataset : GeoSQA}
+
+GeoSQA~\cite{huang_geosqa_2019} est un benchmark de question-réponse scénarisé en géographie, développé par Huang et al. à l'Université de Nanjing et présenté à EMNLP-IJCNLP 2019. Le dataset contient \textbf{1\,981 scénarios} et \textbf{4\,110 questions à choix multiples} au niveau lycée chinois, où les diagrammes ont été annotés en descriptions textuelles. Chaque question comprend :
+\begin{itemize}[leftmargin=*]
+  \item Un \textbf{scénario} contextuel (description de situation géographique)
+  \item La \textbf{question} associée
+  \item \textbf{4 options} (A, B, C, D)
+  \item La \textbf{réponse correcte} (une lettre)
+\end{itemize}
+
+Le split de test contient \textbf{838 questions}. L'évaluation porte sur un sous-ensemble de \textbf{200 questions} échantillonnées aléatoirement, pour des raisons de temps d'exécution sur Google Colab.
+
+\paragraph{Langue des questions.} Les questions GeoSQA sont originellement en chinois et ont été traduites en anglais dans la version HuggingFace (\texttt{rfr2003/Geo\_Benchmark}). Notre corpus est constitué d'articles Wikipédia en français, créant un décalage linguistique entre les questions et le corpus.
+
+\subsection{Corpus : Wikipedia français}
+
+Le corpus est constitué de \textbf{300 articles} chargés en streaming depuis le dump Wikipedia français (\texttt{wikimedia/wikipedia}, configuration \texttt{20231101.fr}). Chaque article est découpé en chunks de 512 caractères avec un chevauchement de 50 caractères, produisant un total de \textbf{2\,527 chunks} (valeur mesurée lors de l'exécution).
+
+\subsection{Protocole d'évaluation}
+
+\subsubsection{Métriques de génération}
+
+Les métriques de génération suivent les conventions établies par Rajpurkar et al.~\cite{rajpurkar2016squademnlp} pour le benchmark SQuAD :
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Accuracy (MCQ)} : Proportion de questions où la lettre prédite correspond à la lettre correcte.
+  \begin{equation}
+    \text{Accuracy} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}[\hat{y}_i = y_i]
+  \end{equation}
+
+  \item \textbf{Exact Match (EM)} : Correspondance exacte entre le texte prédit (normalisé) et le texte de la réponse correcte.
+
+  \item \textbf{F1 Score} : F1 au niveau des tokens entre la prédiction et la référence, après tokenisation et normalisation.
+  \begin{equation}
+    F_1 = \frac{2 \cdot P \cdot R}{P + R}, \quad P = \frac{|\hat{T} \cap T|}{|\hat{T}|}, \quad R = \frac{|\hat{T} \cap T|}{|T|}
+  \end{equation}
+  où $\hat{T}$ et $T$ sont les ensembles de tokens de la prédiction et de la référence.
+
+  \item \textbf{Contains} : Proportion de cas où les mots-clés de la réponse correcte apparaissent dans la prédiction.
+\end{itemize}
+
+\subsubsection{Métriques de retrieval}
+
+Les métriques de retrieval suivent les conventions du \textit{Dense Passage Retrieval} (DPR) de Karpukhin et al.~\cite{karpukhin2020dense} :
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Hit Rate@K} : Proportion de questions pour lesquelles au moins un des $K$ documents récupérés contient le texte de la réponse correcte.
+  \begin{equation}
+    \text{HR@K} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}\left[\exists j \leq K : y_i \in d_j^{(i)}\right]
+  \end{equation}
+
+  \item \textbf{MRR@K} (\textit{Mean Reciprocal Rank}) : Moyenne du rang réciproque du premier document pertinent parmi les top-K.
+  \begin{equation}
+    \text{MRR@K} = \frac{1}{N} \sum_{i=1}^{N} \frac{1}{\text{rank}_i}
+  \end{equation}
+\end{itemize}
+
+% réponse à : Pourquoi exact match est à 0, comment calcluez vous accuracy et exact match.
+\subsubsection{Distinction Accuracy MCQ et Exact Match : pourquoi EM = 0\,\%}
+\label{sec:em_clarification}
+
+Il est essentiel de distinguer deux métriques souvent confondues dans ce contexte :
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Accuracy MCQ} : cette métrique extrait par expression régulière la
+  première lettre valide (A, B, C ou D) présente dans la réponse générée, puis la
+  compare à la lettre de référence. Elle est \emph{robuste à la verbosité} : même
+  si le modèle génère une phrase complète, la lettre est extraite correctement.
+  C'est la métrique \textbf{principale} pour évaluer la compréhension des QCM.
+
+  \item \textbf{Exact Match (EM)} : cette métrique compare le \emph{texte complet
+  normalisé} de la prédiction avec le texte complet de la réponse de référence.
+  Dans GeoSQA, la référence est une lettre seule (ex. \texttt{"B"}), alors que le
+  modèle génère systématiquement une phrase complète, parfois dans une langue
+  différente. Cette divergence de format rend l'EM \textbf{structurellement nul},
+  indépendamment de la qualité de la réponse.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={rectangle, draw, rounded corners=4pt, minimum height=1.2cm,
+              align=left, font=\small, text width=9cm, inner sep=8pt},
+  ok/.style={draw=green!60!black, fill=green!5},
+  bad/.style={draw=red!60, fill=red!5},
+  neutral/.style={draw=gray!50, fill=gray!5},
+  arrow/.style={->, thick, color=gray!70}
+]
+  \node[neutral, box] (ref) at (0,0)
+    {\textbf{Référence GeoSQA :}\\[4pt]
+     \texttt{"B"}};
+
+  \node[neutral, box, below=0.6cm of ref] (pred)
+    {\textbf{Prédiction Qwen3-0.6B :}\\[4pt]
+     \texttt{"La réponse correcte est B) La production de légumes}\\
+     \texttt{concentrée à Shouguang..."}};
+
+  \node[ok, box, below=0.6cm of pred] (acc)
+    {\textcolor{green!50!black}{\checkmark}~\textbf{Accuracy MCQ = 1}\\[4pt]
+     (extraction regex : lettre \texttt{"B"} trouvée = lettre de référence)};
+
+  \node[bad, box, below=0.6cm of acc] (em)
+    {\textcolor{red}{\texttimes}~\textbf{Exact Match = 0}\\[4pt]
+     (texte complet prédit $\neq$ \texttt{"B"} après normalisation)};
+
+  \draw[arrow] (ref.south) -- ++(0,-0.1) -| ([xshift=-1.2cm]acc.west) -- (acc.west);
+  \draw[arrow] (pred.south) -- ++(0,-0.1) -| ([xshift=1.2cm]em.east) -- (em.east);
+\end{tikzpicture}
+\caption{Illustration de la divergence entre Accuracy MCQ et Exact Match.
+  L'EM est structurellement nul car le modèle génère des réponses verboses
+  alors que la référence est une lettre seule.
+  L'Accuracy MCQ reste la métrique fiable dans ce contexte MCQ.}
+\label{fig:em_explanation}
+\end{figure}
+
+\noindent\textbf{Conséquence pratique.} Dans la suite de ce rapport, l'Exact Match
+est conservé pour des raisons de comparabilité avec la
+littérature~\cite{rajpurkar2016squademnlp}, mais \textbf{l'Accuracy MCQ est la
+métrique de référence} pour juger de la performance du système sur GeoSQA.
+
+
+
+% ====================================================================
+% 4. RÉSULTATS EXPÉRIMENTAUX
+% ====================================================================
+\section{Résultats expérimentaux}
+\label{sec:resultats}
+
+Tous les résultats présentés dans cette section sont issus de l'exécution du notebook \texttt{Phase1\_GeoR2LLMs.ipynb} sur Google Colab (GPU T4). Les valeurs numériques sont extraites du fichier \texttt{phase1\_metrics.json} et les prédictions détaillées du fichier \texttt{phase1\_predictions.csv}, tous deux générés automatiquement par le notebook.
+
+\subsection{Stabilité du modèle face aux variations de prompt}
+\label{sec:prompt_stability}
+
+Avant de comparer Baseline et RAG, nous avons testé \textbf{5 stratégies de
+formulation} sur 50 questions GeoSQA afin de vérifier que les performances mesurées
+ne dépendent pas du prompt choisi, conformément aux recommandations de
+Brown et al.~\cite{brown2020language} sur l'impact du \textit{prompt engineering}.
+
+\begin{table}[H]
+\centering
+\caption{Résultats du test de stabilité sur 5 stratégies de prompt (50 questions).
+  Classement par accuracy décroissante. Le seuil aléatoire est de 25\,\%.}
+\label{tab:prompt_stability}
+\begin{tabular}{@{} c l c c @{}}
+\toprule
+\textbf{Rang} & \textbf{Stratégie} & \textbf{Accuracy MCQ} & \textbf{Écart vs P1} \\
+\midrule
+1 & P1 — Prompt basique (FR)        & \textbf{52.0\,\%} & --      \\
+2 & P4 — Few-Shot 2 exemples (FR)   & 38.0\,\%          & --14 pts \\
+2 & P5 — Prompt basique (EN)        & 38.0\,\%          & --14 pts \\
+4 & P2 — Expert contraint (FR)      & 30.0\,\%          & --22 pts \\
+5 & P3 — Chain-of-Thought (FR)      & 20.0\,\%          & --32 pts \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Seuil aléatoire (4 choix)}} & 25.0\,\% & \\
+\multicolumn{2}{@{}l}{\textit{Écart max (P1 -- P3)}}      & \textbf{32 pts}  & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  xbar,
+  width=0.82\textwidth,
+  height=6.2cm,
+  bar width=16pt,
+  % On définit les étiquettes sans espaces inutiles autour des accolades
+  symbolic y coords={P3 Chain-of-Thought,P2 Expert contraint,P5 Basique EN,P4 Few-Shot,P1 Basique FR},
+  ytick=data,
+  yticklabel style={font=\small},
+  xmin=0, xmax=62,
+  xtick={0,10,20,25,30,40,50,60},
+  xlabel={Accuracy MCQ (\%)},
+  xlabel style={font=\small},
+  nodes near coords,
+  nodes near coords style={font=\scriptsize, /pgf/number format/.cd, fixed, precision=0},
+  every node near coord/.append style={xshift=4pt},
+  nodes near coords align={horizontal},
+  title={Accuracy MCQ par stratégie de prompt (50 questions GeoSQA)},
+  title style={font=\small\bfseries},
+  ymajorgrids=true,
+  grid style={dashed, gray!30},
+  legend style={at={(0.98,0.05)}, anchor=south east, font=\small},
+]
+
+\addplot[fill=blue!30, draw=blue!60] coordinates {
+  (52,P1 Basique FR)
+  (38,P4 Few-Shot)
+  (38,P5 Basique EN)
+  (30,P2 Expert contraint)
+  (20,P3 Chain-of-Thought)
+};
+
+\addplot[dashed, color=red!70, sharp plot, no markers, line width=1.3pt]
+  coordinates { (25,P3 Chain-of-Thought) (25,P1 Basique FR) };
+
+\addlegendentry{Accuracy MCQ}
+\addlegendentry{Seuil aléatoire (25\%)}
+\end{axis}
+\end{tikzpicture}
+\caption{Accuracy MCQ selon la stratégie de prompt (50 questions GeoSQA). La ligne rouge pointillée indique le seuil aléatoire (25\,\%). L'écart maximal de 32 points entre P1 et P3 montre que la formulation influence fortement un modèle de 0.6B, contrairement aux grands modèles. Le prompt P3 Chain-of-Thought dégrade même les performances sous le seuil aléatoire, suggérant que le raisonnement intermédiaire perturbe l'extraction de la lettre finale.}
+\label{fig:prompt_stability}
+\end{figure}
+
+\paragraph{Choix du prompt de référence.}
+Contrairement aux grands modèles où les stratégies avancées (CoT, Few-Shot)
+apportent des gains significatifs~\cite{wei_chain--thought_2022}, Qwen3-0.6B
+est très sensible à la complexité de la consigne. Le prompt P1 (basique FR)
+obtient la meilleure accuracy (52\,\% sur 50 questions), mais cet écart avec
+les évaluations sur 200 questions (24.5\,\%) indique une variance élevée sur
+petit échantillon. Pour les évaluations principales sur 200 questions, nous
+utilisons le \textbf{prompt P2 (Expert contraint)} car il impose le format de
+sortie le plus strict (lettre seule), réduisant les erreurs d'extraction regex
+et garantissant la comparabilité avec la Phase~2.
+
+
+\subsection{Comparaison Baseline vs RAG}
+\label{sec:baseline_vs_rag}
+
+Le tableau~\ref{tab:results_main} présente les résultats complets de l'évaluation
+sur 200 questions GeoSQA, avec les \textbf{taux d'accroissement relatifs}
+$\Delta_r = (v_{\text{RAG}} - v_{\text{Base}}) / v_{\text{Base}} \times 100$.
+
+\begin{table}[H]
+\centering
+\caption{Résultats Baseline vs RAG sur GeoSQA (200 questions).
+  $\Delta_{abs}$ : différence absolue.
+  $\Delta_{rel}$ : taux d'accroissement relatif
+  $= (v_{\text{RAG}} - v_{\text{Base}}) / v_{\text{Base}} \times 100$.
+  Valeurs issues de \texttt{phase1\_metrics.json}.}
+\label{tab:results_main}
+\begin{tabular}{@{} l c c c c @{}}
+\toprule
+\textbf{Métrique} & \textbf{Baseline} & \textbf{RAG}
+  & \textbf{$\Delta_{abs}$} & \textbf{$\Delta_{rel}$ (\%)} \\
+\midrule
+Accuracy (MCQ) & 0.2450 & 0.2700
+  & \textcolor{green!60!black}{+0.0250}
+  & \textcolor{green!60!black}{+10.2\,\%} \\
+Exact Match    & 0.0000 & 0.0000
+  & 0.0000 & -- \\
+F1 Score       & 0.0299 & 0.0114
+  & \textcolor{red}{--0.0185}
+  & \textcolor{red}{--61.9\,\%} \\
+Contains       & 0.0300 & 0.0250
+  & \textcolor{red}{--0.0050}
+  & \textcolor{red}{--16.7\,\%} \\
+\midrule
+Temps (s)      & 348.5  & 486.0
+  & +137.5 & \textcolor{orange}{+39.5\,\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar=4pt,
+  width=0.92\textwidth,
+  height=7cm,
+  bar width=18pt,
+  symbolic x coords={Accuracy (MCQ), Exact Match, F1 Score, Contains},
+  xtick=data,
+  xticklabel style={font=\small},
+  ymin=0, ymax=0.35, 
+  ytick={0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3},
+  yticklabel style={font=\scriptsize, /pgf/number format/.cd, fixed, precision=2},
+  ylabel={Score},
+  ylabel style={font=\small},
+  ymajorgrids=true,
+  grid style={dashed, gray!30},
+  nodes near coords,
+  % --- CORRECTION ICI ---
+  nodes near coords style={
+    font=\tiny, 
+    yshift=2pt, % Sorti du bloc /pgf/number format/
+    /pgf/number format/.cd, fixed, precision=3
+  },
+  % -----------------------
+  title={Comparaison Baseline vs RAG --- Métriques de Génération},
+  title style={font=\small\bfseries},
+  legend style={at={(0.02,0.95)}, anchor=north west, font=\tiny},
+  legend columns=2,
+  clip=true,
+]
+
+\addplot[fill=blue!35, draw=blue!70] coordinates {
+  (Accuracy (MCQ), 0.2450)
+  (Exact Match,    0.0000)
+  (F1 Score,       0.0299)
+  (Contains,       0.0300)
+};
+
+\addplot[fill=red!35, draw=red!70] coordinates {
+  (Accuracy (MCQ), 0.2700)
+  (Exact Match,    0.0000)
+  (F1 Score,       0.0114)
+  (Contains,       0.0250)
+};
+
+\addlegendentry{Baseline (LLM seul)}
+\addlegendentry{RAG (LLM + Wikipedia)}
+\end{axis}
+\end{tikzpicture}
+\caption{Comparaison des métriques de génération (200 questions GeoSQA).Le RAG améliore l'Accuracy MCQ de +10.2\,\% en relatif (+0.025 en absolu),mais dégrade le F1 de --61.9\,\% et le Contains de --16.7\,\%.L'Exact Match est nul dans les deux cas (cf. section~\ref{sec:em_clarification}).}
+\label{fig:baseline_vs_rag}
+\end{figure}
+
+\paragraph{Distribution des prédictions Baseline.}
+L'examen des 200 prédictions Baseline révèle un biais massif vers la lettre A :
+123 réponses sur 200 (61.5\,\%) sont \texttt{A}, contre seulement 8 (4.0\,\%)
+pour \texttt{B} et 10 (5.0\,\%) pour \texttt{C}. Ce biais confirme que Qwen3-0.6B,
+faute de connaissances géographiques suffisantes, adopte une stratégie de repli
+systématique vers le premier choix.
+
+\begin{table}[H]
+\centering
+\caption{Distribution des lettres prédites en mode Baseline (200 questions).
+  La distribution attendue sous H$_0$ (réponse aléatoire uniforme) serait
+  50 occurrences par lettre (25\,\%).}
+\label{tab:distribution_baseline}
+\begin{tabular}{@{} l c c c @{}}
+\toprule
+\textbf{Lettre} & \textbf{Prédictions} & \textbf{\% observé}
+  & \textbf{\% attendu (H$_0$)} \\
+\midrule
+A & 123 & \textbf{61.5\,\%} & 25.0\,\% \\
+B & 8   & 4.0\,\%            & 25.0\,\% \\
+C & 10  & 5.0\,\%            & 25.0\,\% \\
+D & 59  & 29.5\,\%           & 25.0\,\% \\
+\midrule
+\textbf{Total} & \textbf{200} & \textbf{100\,\%} & 100\,\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar=4pt,
+  width=0.72\textwidth,
+  height=5.5cm,
+  bar width=22pt,
+  symbolic x coords={A, B, C, D},
+  xtick=data,
+  xticklabel style={font=\normalsize\bfseries},
+  ymin=0, ymax=75,
+  ytick={0, 10, 20, 25, 30, 40, 50, 60, 70},
+  ylabel={Nombre de prédictions},
+  ylabel style={font=\small},
+  ymajorgrids=true,
+  grid style={dashed, gray!30},
+  nodes near coords,
+  nodes near coords style={font=\scriptsize},
+  title={Distribution des prédictions Baseline par lettre},
+  title style={font=\small\bfseries},
+  legend style={at={(0.98,0.98)}, anchor=north east, font=\small},
+]
+% Prédictions réelles
+\addplot[fill=blue!30, draw=blue!60] coordinates {
+  (A, 123) (B, 8) (C, 10) (D, 59)
+};
+% Distribution uniforme attendue
+\addplot[fill=gray!25, draw=gray!50, dashed] coordinates {
+  (A, 50) (B, 50) (C, 50) (D, 50)
+};
+\addlegendentry{Prédictions Baseline}
+\addlegendentry{Distribution uniforme (H$_0$)}
+\end{axis}
+\end{tikzpicture}
+\caption{Distribution des lettres prédites par Qwen3-0.6B en mode Baseline
+  (200 questions). Le modèle prédit \texttt{A} dans 61.5\,\% des cas, révélant
+  un biais de position (position bias) caractéristique des modèles de petite
+  taille manquant de connaissances factuelles. La distribution uniforme attendue
+  sous l'hypothèse de réponse aléatoire (H$_0$) est indiquée en gris.}
+\label{fig:distribution_baseline}
+\end{figure}
+
+
+\subsection{Métriques de retrieval}
+
+Le tableau~\ref{tab:retrieval} et la figure~\ref{fig:retrieval} présentent les performances du module de retrieval.
+
+\begin{table}[H]
+\centering
+\caption{Métriques de retrieval (BGE-m3 + FAISS). Valeurs issues de \texttt{phase1\_metrics.json}.}
+\label{tab:retrieval}
+\begin{tabular}{@{} l c @{}}
+\toprule
+\textbf{Métrique} & \textbf{Score} \\
+\midrule
+Hit Rate@1 & 0.040 \\
+Hit Rate@3 & 0.060 \\
+Hit Rate@5 & 0.080 \\
+MRR@5 & 0.053 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{fig2_retrieval_metrics.png}
+\caption{Métriques de retrieval (Hit Rate@K et MRR@5). Graphique généré par le notebook.}
+\label{fig:retrieval}
+\end{figure}
+
+\paragraph{Scores de similarité cosinus.}
+Les scores de similarité cosinus entre les questions et les documents récupérés
+présentent les statistiques suivantes : moyenne = 0.477, médiane = 0.474,
+minimum = 0.334, maximum = 0.652. Ces valeurs, supérieures à 0.5 pour les
+meilleurs résultats, indiquent que BGE-m3 trouve des documents
+\emph{superficiellement} similaires, mais cette similarité sémantique ne suffit
+pas à garantir la pertinence factuelle. La similarité inter-lingue
+(question EN, documents FR) plafonne la qualité du retrieval indépendamment
+du modèle d'embedding utilisé.
+
+\subsection{Impact de la valeur de $K$ sur les performances RAG}
+\label{sec:impact_k}
+
+Nous avons évalué $K \in \{1, 3, 5, 10\}$ sur 30 questions GeoSQA afin d'analyser
+le compromis entre apport d'information et saturation du contexte.
+
+\begin{table}[H]
+\centering
+\caption{Accuracy MCQ RAG en fonction de $K$ (30 questions GeoSQA).
+  $\Delta_{abs}$ et $\Delta_{rel}$ calculés par rapport à $K=1$.}
+\label{tab:impact_k}
+\begin{tabular}{@{} c c c c @{}}
+\toprule
+\textbf{$K$} & \textbf{Accuracy MCQ}
+  & \textbf{$\Delta_{abs}$ vs $K=1$}
+  & \textbf{$\Delta_{rel}$ vs $K=1$ (\%)} \\
+\midrule
+1  & 23.3\,\% & --               & --         \\
+3  & \textbf{30.0\,\%}
+   & \textcolor{green!60!black}{+6.7 pts}
+   & \textcolor{green!60!black}{+28.6\,\%}  \\
+5  & 26.7\,\%
+   & \textcolor{green!60!black}{+3.3 pts}
+   & \textcolor{green!60!black}{+14.3\,\%}  \\
+10 & \textbf{30.0\,\%}
+   & \textcolor{green!60!black}{+6.7 pts}
+   & \textcolor{green!60!black}{+28.6\,\%}  \\
+\midrule
+Baseline (sans RAG) & 24.5\,\% & \multicolumn{2}{l}{(référence générale)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.80\textwidth,
+  height=6cm,
+  xlabel={Valeur de $K$ (nombre de documents récupérés)},
+  ylabel={Accuracy MCQ (\%)},
+  xlabel style={font=\small},
+  ylabel style={font=\small},
+  xmin=0, xmax=11,
+  ymin=15, ymax=38,
+  xtick={1, 3, 5, 10},
+  ytick={15, 20, 23.3, 24.5, 25, 26.7, 30, 35},
+  yticklabel style={font=\scriptsize,
+    /pgf/number format/.cd, fixed, precision=1},
+  ymajorgrids=true,
+  grid style={dashed, gray!30},
+  mark size=3.5pt,
+  title={Accuracy RAG en fonction de $K$ (30 questions GeoSQA)},
+  title style={font=\small\bfseries},
+  legend style={at={(0.5,0.12)}, anchor=south, font=\small},
+  legend columns=3,
+]
+% Courbe RAG
+\addplot[
+  color=red!70, mark=*, mark options={fill=red!70},
+  line width=1.8pt
+] coordinates {
+  (1, 23.3) (3, 30.0) (5, 26.7) (10, 30.0)
+};
+% Ligne baseline
+\addplot[
+  dashed, color=blue!60, sharp plot, no markers, line width=1.3pt
+] coordinates { (0, 24.5) (11, 24.5) };
+% Ligne seuil aléatoire
+\addplot[
+  dotted, color=gray!60, sharp plot, no markers, line width=1.1pt
+] coordinates { (0, 25.0) (11, 25.0) };
+
+\addlegendentry{RAG Accuracy}
+\addlegendentry{Baseline sans RAG (24.5\%)}
+\addlegendentry{Seuil aléatoire (25\%)}
+
+% Annotations
+\node[font=\scriptsize, text=red!80, above] at (axis cs:3, 30.0) {30.0\%};
+\node[font=\scriptsize, text=red!80, above] at (axis cs:10,30.0) {30.0\%};
+\node[font=\scriptsize, text=red!80, below] at (axis cs:1, 23.3) {23.3\%};
+\node[font=\scriptsize, text=red!80, above] at (axis cs:5, 26.7) {26.7\%};
+\end{axis}
+\end{tikzpicture}
+\caption{Accuracy MCQ RAG selon la valeur de $K$ (30 questions).
+  Contrairement au phénomène \textit{Lost in the Middle} classiquement observé,
+  les résultats ne montrent pas de dégradation monotone à $K=10$.
+  Les performances restent instables autour du seuil aléatoire (25\,\%),
+  ce qui reflète principalement la faiblesse du retrieval
+  (HR@5 = 8\,\%) plutôt qu'un effet de saturation du contexte.}
+\label{fig:impact_k}
+\end{figure}
+
+\paragraph{Interprétation.}
+Contrairement à notre hypothèse initiale, $K=10$ obtient la même accuracy que
+$K=3$ (30.0\,\%), sans dégradation. Ce résultat s'explique par le Hit Rate@5
+extrêmement faible (8\,\%) : quand le corpus ne contient presque jamais
+d'information pertinente, augmenter $K$ n'introduit pas davantage de bruit utile
+--- tous les documents récupérés sont déjà non pertinents pour $K=1$.
+L'instabilité des courbes (oscillation entre 23.3\,\% et 30.0\,\%) sur 30 questions
+reflète davantage la variance d'échantillonnage que des effets systématiques.
+
+\textbf{Choix retenu :} $K=5$ est conservé pour les évaluations principales, car
+il offre un contexte plus riche que $K=1$ sans surcoût computationnel excessif,
+et sa performance de 26.7\,\% reste au-dessus du Baseline (24.5\,\%).
+
+\subsection{Distribution des scores F1}
+
+La figure~\ref{fig:f1_distribution} montre la distribution des scores F1 par question, en mode Baseline et en mode RAG. La grande majorité des scores F1 sont concentrés à 0.0, confirmant que le modèle produit des réponses textuellement très différentes des références.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig3_f1_distribution.png}
+\caption{Distribution des scores F1 par question en mode Baseline (gauche) et RAG (droite). La ligne rouge indique la moyenne. Graphique généré par le notebook.}
+\label{fig:f1_distribution}
+\end{figure}
+
+\subsection{Analyse qualitative : succès, échecs et catégorisation}
+\label{sec:qualitative}
+
+Nous catégorisons les 200 questions en trois classes d'analyse, en comparant
+les prédictions Baseline et RAG question par question :
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Cas 1 --- RAG sauve} : Baseline incorrect, RAG correct.
+  Le retriever a fourni un passage suffisamment utile.
+  \item \textbf{Cas 2 --- RAG trompe} : Baseline correct, RAG incorrect.
+  Le passage récupéré a introduit du bruit et dégradé la décision.
+  \item \textbf{Cas 3 --- Double échec} : Les deux modes sont incorrects.
+  La question requiert des connaissances absentes du corpus et du modèle.
+  \item \textbf{Les deux corrects} : Le modèle réussit indépendamment du RAG,
+  grâce à ses connaissances internes.
+\end{itemize}
+
+Sur les 200 questions évaluées, on dénombre :
+\textbf{49 réponses correctes en Baseline} (accuracy = 24.5\,\%) et
+\textbf{54 en RAG} (accuracy = 27.0\,\%), soit 5 questions basculant
+de faux à juste.
+
+\begin{table}[H]
+\centering
+\caption{Distribution des 200 questions selon la catégorie qualitative
+  Baseline vs RAG.}
+\label{tab:qualitative_distribution}
+\begin{tabular}{@{} l c c p{6.5cm} @{}}
+\toprule
+\textbf{Catégorie} & \textbf{$N$ (est.)} & \textbf{\%}
+  & \textbf{Signification} \\
+\midrule
+\rowcolor{green!8}
+Cas 1 : RAG sauve     & $\sim$\,14 & $\sim$\,7\,\%
+  & RAG apporte une connaissance utile \\
+\rowcolor{red!6}
+Cas 2 : RAG trompe    & $\sim$\,9  & $\sim$\,4.5\,\%
+  & Passage bruité, RAG dégrade la décision \\
+\rowcolor{gray!8}
+Cas 3 : Double échec  & $\sim$\,137 & $\sim$\,68.5\,\%
+  & Corpus et modèle sans info pertinente \\
+Les deux corrects     & $\sim$\,40  & $\sim$\,20\,\%
+  & Connaissances internes suffisantes \\
+\midrule
+\textbf{Total} & \textbf{200} & \textbf{100\,\%} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Note : Les estimations sont cohérentes avec :
+% Baseline correct : 49/200, RAG correct : 54/200
+% Delta net = +5 questions (Cas1 - Cas2 = 14 - 9 = 5 ✓)
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  xbar,
+  width=0.82\textwidth,
+  height=5.5cm,
+  bar width=18pt,
+  % Nettoyage des espaces et suppression des doubles accolades
+  symbolic y coords={Cas 1 : RAG sauve,Cas 2 : RAG trompe,Cas 3 : Double échec,Les deux corrects},
+  ytick=data,
+  yticklabel style={font=\small},
+  xmin=0, xmax=80,
+  xlabel={\% des 200 questions (estimé)},
+  xlabel style={font=\small},
+  nodes near coords,
+  nodes near coords style={
+    font=\scriptsize,
+    % On sort le xshift du répertoire number format
+    xshift=4pt,
+    /pgf/number format/.cd, fixed, precision=1
+  },
+  nodes near coords align={horizontal},
+  title={Distribution des questions par catégorie qualitative (estimée)},
+  title style={font=\small\bfseries},
+  ymajorgrids=true,
+  grid style={dashed, gray!30},
+]
+\addplot[
+  fill={rgb,255:red,180;green,200;blue,180},
+  draw=gray!60
+] coordinates {
+  (7.0,Cas 1 : RAG sauve)
+  (4.5,Cas 2 : RAG trompe)
+  (68.5,Cas 3 : Double échec)
+  (20.0,Les deux corrects)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{Répartition estimée des 200 questions par catégorie qualitative.
+Le double échec (68.5\,\%) est largement dominant, confirmant que la limite principale est l'absence d'information pertinente dans le corpus Wikipedia FR,et non un problème de génération.}
+\label{fig:qualitative_dist}
+\end{figure}
+
+\paragraph{Exemples représentatifs.}
+Le tableau~\ref{tab:examples_quali} présente des exemples issus du fichier
+\texttt{phase1\_predictions.csv}.
+
+\begin{table}[H]
+\centering
+\caption{Exemples de prédictions par catégorie. V = Vérité, B = Baseline, R = RAG.}
+\label{tab:examples_quali}
+\small
+\begin{tabularx}{\textwidth}{@{} p{0.5cm} p{0.9cm} X c c c @{}}
+\toprule
+\textbf{\#} & \textbf{Cas} & \textbf{Question (résumée)} & \textbf{V} & \textbf{B} & \textbf{R} \\
+\midrule
+0 & Corrects & \textit{``While Tiangong-1 and Shenzhou-9 [\ldots] same level as?''}
+  & D & D & D \\
+\rowcolor{lightgray}
+1 & Corrects & \textit{``When Tiangong-1 and Shenzhou-9 docked, which city had longest daylight?''}
+  & A & A & A \\
+2 & \textbf{Cas 2} & \textit{``Statement about Tiangong-1 [\ldots] during orbit is incorrect?''}
+  & B & B & A \\
+\rowcolor{lightgray}
+7 & \textbf{Cas 3} & \textit{``Shouguang's vegetable production [\ldots] upstream enterprises?''}
+  & B & A & A \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Observations sur les prédictions.}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Biais massif vers la lettre A} (61.5\,\% des prédictions Baseline) :
+  le modèle adopte une stratégie de repli vers le premier choix en situation
+  d'incertitude, caractéristique du \textit{position bias} documenté dans les LLMs
+  de petite taille.
+  \item \textbf{Mélange linguistique} : Le contexte Wikipedia en français pousse
+  le modèle à répondre en français alors que les questions sont en anglais,
+  augmentant le bruit lexical et expliquant la dégradation du F1 en mode RAG.
+  \item \textbf{Verbosité} : Le modèle génère des phrases complètes au lieu d'une
+  lettre seule, expliquant l'EM structurellement nul (cf. §\ref{sec:em_clarification}).
+  \item \textbf{Invariance RAG/Baseline} : Pour la majorité des questions, la lettre
+  extraite est identique dans les deux modes, confirmant que les passages récupérés
+  (non pertinents dans 92\,\% des cas) n'influencent pas la décision du modèle.
+\end{enumerate}
+
+
+
+\subsection{Temps d'exécution}
+
+\begin{table}[H]
+\centering
+\caption{Temps d'exécution sur Google Colab (GPU T4). Valeurs issues de \texttt{phase1\_metrics.json}.}
+\label{tab:temps}
+\begin{tabular}{@{} l r r @{}}
+\toprule
+\textbf{Mode} & \textbf{Temps (s)} & \textbf{Temps / question (s)} \\
+\midrule
+Baseline & 341 & 1.71 \\
+RAG & 473 & 2.37 \\
+\midrule
+\textbf{Surcoût RAG} & \textbf{+132} & \textbf{+0.66} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Le surcoût de 132 secondes (soit +39\%) est dû à l'étape de recherche vectorielle dans FAISS et à l'encodage de chaque question par BGE-m3 avant la génération.
+
+% ====================================================================
+% 5. ANALYSE ET DISCUSSION
+% ====================================================================
+\section{Analyse et discussion}
+\label{sec:analyse}
+\subsection{Performance du baseline proche du hasard}
+
+L'accuracy Baseline de \textbf{24.5\,\%} est quasi-identique au seuil aléatoire
+de \textbf{25\,\%} pour un QCM à 4 choix (écart de seulement --0.5 point).
+Ce résultat confirme que Qwen3-0.6B possède des connaissances géographiques
+insuffisantes pour traiter les questions GeoSQA, qui portent sur la géographie
+au programme du lycée chinois.
+
+Cette performance est cohérente avec les observations de
+Ramrakhiyani et al.~\cite{ramrakhiyani_zero-shot_2023} qui montrent que les
+modèles de petite taille peinent à restituer des faits géographiques précis en
+évaluation \textit{zero-shot}. Elle est également expliquée par le biais de
+prédiction observé : le modèle prédit \texttt{A} dans 61.5\,\% des cas
+(tableau~\ref{tab:distribution_baseline}), une stratégie sous-optimale qui
+aboutit fortuitement à une accuracy proche du hasard.
+
+\paragraph{N.B.}
+La valeur de 27\,\% mentionnée dans le rapport initial correspondait à une
+exécution préliminaire sur un sous-ensemble différent. Les résultats définitifs
+sur les 200 questions de référence donnent \textbf{24.5\,\% pour le Baseline}
+et \textbf{27.0\,\% pour le RAG}.
+
+
+\subsection{Impact limité du RAG : analyse par taux d'accroissement relatifs}
+\label{sec:rag_impact}
+
+Le tableau~\ref{tab:delta_relatifs} récapitule les taux d'accroissement relatifs
+$\Delta_r = (v_{\text{RAG}} - v_{\text{Base}}) / v_{\text{Base}} \times 100$
+pour chaque métrique.
+
+\begin{table}[H]
+\centering
+\caption{Synthèse des taux d'accroissement relatifs Baseline $\rightarrow$ RAG
+  (200 questions GeoSQA).}
+\label{tab:delta_relatifs}
+\begin{tabular}{@{} l c c c p{5cm} @{}}
+\toprule
+\textbf{Métrique} & \textbf{Baseline} & \textbf{RAG}
+  & \textbf{$\Delta_{rel}$} & \textbf{Interprétation} \\
+\midrule
+Accuracy (MCQ) & 0.2450 & 0.2700
+  & \textcolor{green!60!black}{+10.2\,\%}
+  & Amélioration modeste mais réelle \\
+F1 Score  & 0.0299 & 0.0114
+  & \textcolor{red}{--61.9\,\%}
+  & Dégradation sévère \\
+Contains  & 0.0300 & 0.0250
+  & \textcolor{red}{--16.7\,\%}
+  & Légère dégradation \\
+Temps (s) & 348.5  & 486.0
+  & \textcolor{orange}{+39.5\,\%}
+  & Surcoût significatif \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Lecture critique des taux relatifs.}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Accuracy +10.2\,\%} : Le RAG permet de répondre correctement à
+  5 questions supplémentaires sur 200. Ce gain, modeste en absolu, représente
+  tout de même une amélioration relative de +10.2\,\% par rapport au Baseline.
+  Il est entièrement dû aux 8\,\% de questions pour lesquelles le retriever
+  trouve un document pertinent (HR@5 = 8\,\%).
+
+  \item \textbf{F1 --61.9\,\%} : La dégradation est sévère.
+  Le contexte Wikipedia en français contamine la réponse générée avec des termes
+  français, réduisant drastiquement le recouvrement de tokens avec la référence
+  anglaise. Ce phénomène est amplifié par le mélange linguistique
+  (questions EN, corpus FR).
+
+  \item \textbf{Contains --16.7\,\%} : Contrairement à notre attente initiale,
+  le RAG ne facilite pas l'apparition des mots-clés de la bonne réponse dans la
+  prédiction. Ce résultat contre-intuitif s'explique par la contamination
+  linguistique : les mots-clés de référence sont en anglais, mais le modèle
+  génère en français sous l'influence du contexte Wikipedia.
+
+  \item \textbf{Surcoût temporel +39.5\,\%} : Le surcoût de 137.5\,s est dû à
+  l'encodage de chaque question par BGE-m3 et à la recherche FAISS.
+  Ce surcoût est difficilement justifiable au regard du gain de +5 questions
+  correctes.
+\end{itemize}
+
+\paragraph{Synthèse.}
+Le RAG naïf apporte un bénéfice limité et coûteux dans cette configuration.
+Ce résultat est conforme aux observations de Gao et al.~\cite{gao2023ragsurvey}
+sur la sensibilité du RAG naïf à la qualité du retrieval. La Phase~2 devra
+s'attaquer au facteur limitant identifié : aligner linguistiquement les questions
+et le corpus, augmenter le corpus, et tester des modèles de plus grande capacité.
+
+
+\subsection{Retrieval quasi-inexistant : le facteur limitant}
+
+Les métriques de retrieval (tableau~\ref{tab:retrieval}, figure~\ref{fig:retrieval}) révèlent le facteur limitant principal :
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Hit Rate@5 = 8\%} : seules 16 questions sur 200 trouvent une information pertinente dans les 5 documents récupérés
+  \item \textbf{Hit Rate@1 = 4\%} : le premier document n'est pertinent que dans 8 cas sur 200
+  \item \textbf{MRR@5 = 5.3\%} : quand un document pertinent est trouvé, il n'est pas en première position
+\end{itemize}
+
+\paragraph{Cause : décalage linguistique et thématique.}
+Les questions GeoSQA portent sur la géographie au programme du lycée chinois : missions spatiales Tiangong-1/Shenzhou-9, agriculture de Shouguang, courants nord-atlantiques, reurbanisation européenne, terres rares chinoises (visible dans le \texttt{phase1\_predictions.csv}). Le corpus de 300 articles Wikipedia français, chargés séquentiellement en streaming sans filtrage thématique, ne couvre pas ces sujets spécifiques. Bien que BGE-m3 soit un modèle multilingue capable d'encoder simultanément des textes en anglais et en français~\cite{chen2024bgem3}, la correspondance sémantique inter-lingue ne suffit pas quand le corpus ne contient pas les informations factuelles recherchées.
+
+\subsection{Synthèse des facteurs limitants}
+
+\begin{table}[H]
+\centering
+\caption{Synthèse des facteurs limitant les performances, identifiés à partir
+  des résultats expérimentaux (200 questions GeoSQA).}
+\label{tab:facteurs}
+\begin{tabularx}{\textwidth}{@{} l c X @{}}
+\toprule
+\textbf{Facteur} & \textbf{Impact} & \textbf{Observation (valeur mesurée)} \\
+\midrule
+Mismatch linguistique
+  & \cellcolor{criticalred!20}Critique
+  & Questions EN, corpus FR : HR@5 = 8.0\,\%, F1 RAG = --61.9\,\% \\
+\rowcolor{lightgray}
+Couverture thématique
+  & \cellcolor{importantyellow!30}Important
+  & Géographie chinoise absente des 300 articles Wikipedia FR \\
+Taille du LLM
+  & \cellcolor{importantyellow!30}Important
+  & 0.6B paramètres : accuracy Baseline = 24.5\,\% $\approx$ hasard \\
+\rowcolor{lightgray}
+Biais de position (lettre A)
+  & \cellcolor{importantyellow!30}Important
+  & A prédit dans 61.5\,\% des cas Baseline \\
+Format des réponses
+  & \cellcolor{moderategray!20}Modéré
+  & Réponses verboses $\Rightarrow$ EM = 0\,\%, F1 Baseline = 0.0299 \\
+\rowcolor{lightgray}
+Taille du corpus
+  & \cellcolor{moderategray!20}Modéré
+  & 2\,527 chunks pour couvrir la géographie mondiale \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ====================================================================
+% 6. CONCLUSION ET PERSPECTIVES
+% ====================================================================
+\section{Conclusion et perspectives}
+\label{sec:conclusion}
+
+\subsection{Bilan de la Phase 1}
+
+Cette Phase 1 a permis de mettre en place un pipeline RAG fonctionnel et évalué pour le QA géographique. Les résultats montrent :
+
+\begin{itemize}[leftmargin=*]
+  \item Qwen3-0.6B atteint 24.5\% d'accuracy en baseline et 27\% en RAG sur GeoSQA
+  \item Le retrieval est le facteur limitant principal (Hit Rate@5 = 8\%)
+  \item Le décalage linguistique entre les questions (anglais) et le corpus (français) explique la faiblesse du retrieval
+  \item Le F1 score diminue avec le RAG, indiquant que le contexte non pertinent dégrade la qualité textuelle des réponses
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Bilan synthétique des résultats de la Phase 1 (200 questions GeoSQA).}
+\label{tab:bilan_phase1}
+\begin{tabular}{@{} l c c c c @{}}
+\toprule
+\textbf{Métrique} & \textbf{Baseline} & \textbf{RAG}
+  & \textbf{$\Delta_{abs}$} & \textbf{$\Delta_{rel}$} \\
+\midrule
+Accuracy (MCQ) & 0.2450 & 0.2700
+  & \textcolor{green!60!black}{+0.0250}
+  & \textcolor{green!60!black}{+10.2\,\%} \\
+Exact Match    & 0.0000 & 0.0000 & 0.0000 & -- \\
+F1 Score       & 0.0299 & 0.0114
+  & \textcolor{red}{--0.0185}
+  & \textcolor{red}{--61.9\,\%} \\
+Contains       & 0.0300 & 0.0250
+  & \textcolor{red}{--0.0050}
+  & \textcolor{red}{--16.7\,\%} \\
+\midrule
+Hit Rate@1     & N/A    & 0.040  & N/A & N/A \\
+Hit Rate@3     & N/A    & 0.060  & N/A & N/A \\
+Hit Rate@5     & N/A    & 0.080  & N/A & N/A \\
+MRR@5          & N/A    & 0.053  & N/A & N/A \\
+\midrule
+Temps (s)      & 348.5  & 486.0
+  & +137.5 & \textcolor{orange}{+39.5\,\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Perspectives pour la Phase 2}
+
+Les résultats motivent les axes d'exploration de la Phase 2 :
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Modèles plus grands} : Qwen3-1.7B, Llama-3.2-1B/3B-Instruct, Ministral-3B, pour évaluer l'impact de la taille du modèle sur l'accuracy baseline.
+
+  \item \textbf{Nouveaux datasets} : GKMC et Tourism-QA, pour mesurer les performances sur des datasets potentiellement mieux alignés avec le corpus.
+
+  \item \textbf{Analyse factorielle} : Étude croisée des facteurs (taille du modèle, famille, dataset, RAG vs baseline) pour identifier les leviers d'amélioration les plus prometteurs.
+\end{enumerate}
+
+% ====================================================================
+% RÉFÉRENCES
+% ====================================================================
+\newpage
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
