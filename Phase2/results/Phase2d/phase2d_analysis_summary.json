@@ -1,0 +1,62 @@
+{
+  "phase": "2d",
+  "description": "Analyse factorielle croisée des Phases 2a, 2b et 2c",
+  "n_datasets": 3,
+  "n_models": 4,
+  "n_total_evaluations": 12,
+  "best_model_overall": {
+    "name": "Qwen3-1.7B",
+    "mean_rag_accuracy": 0.5099999999999999
+  },
+  "best_model_per_dataset": {
+    "GeoSQA": {
+      "model": "Qwen3-1.7B",
+      "rag_accuracy": 0.335,
+      "family": "Qwen"
+    },
+    "GKMC": {
+      "model": "Qwen3-1.7B",
+      "rag_accuracy": 0.605,
+      "family": "Qwen"
+    },
+    "TourismQA": {
+      "model": "Qwen3-1.7B",
+      "rag_accuracy": 0.59,
+      "family": "Qwen"
+    }
+  },
+  "rag_impact_summary": {
+    "mean_delta": -0.041666666666666664,
+    "n_positive": 1,
+    "n_neutral": 5,
+    "n_negative": 6,
+    "total": 12
+  },
+  "size_correlation": {
+    "pearson_r": 0.14599188048239148,
+    "p_value": 0.6507392279795843,
+    "significant": false
+  },
+  "ranking": [
+    {
+      "rank": 1,
+      "model": "Qwen3-1.7B",
+      "mean_rag_accuracy": 0.5099999999999999
+    },
+    {
+      "rank": 2,
+      "model": "Llama-3.2-3B",
+      "mean_rag_accuracy": 0.4183333333333333
+    },
+    {
+      "rank": 3,
+      "model": "Qwen3-0.6B",
+      "mean_rag_accuracy": 0.415
+    },
+    {
+      "rank": 4,
+      "model": "Llama-3.2-1B",
+      "mean_rag_accuracy": 0.31666666666666665
+    }
+  ]
+}
