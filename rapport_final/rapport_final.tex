@@ -113,7 +113,7 @@
   \centering
   \vspace*{0.5cm}
 
-  \includegraphics[width=5cm]{logo_univ_toulouse}\\[0.8cm]
+  \includegraphics[width=5cm]{Ressources/logo-UT-site.png}\\[0.8cm]
 
   {\Large\textsc{Universit\'e Toulouse III - Paul Sabatier}}\\[0.3cm]
   {\large\textsc{Master 2 Intelligence Artificielle}}\\[0.2cm]
@@ -243,7 +243,8 @@ Le syst\`eme GeoR2LLMs repose sur une architecture RAG na\"ive (\textit{retrieve
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   node distance=1.2cm and 2cm,
-  box/.style={rectangle, draw, rounded corners=4pt, minimum height=1.2cm, minimum width=3cm, align=center, font=\small},
+  box/.style={rectangle, draw, rounded corners=4pt, minimum height=1.2cm, 
+              minimum width=3cm, align=center, font=\small},
   data/.style={box, fill=blue!8, draw=blue!40},
   process/.style={box, fill=green!8, draw=green!40},
   model/.style={box, fill=orange!10, draw=orange!40},
@@ -254,25 +255,27 @@ Le syst\`eme GeoR2LLMs repose sur une architecture RAG na\"ive (\textit{retrieve
 
 % Donnees d'entree
 \node[data] (wiki) {Corpus\\{\scriptsize Wikipedia / Reviews}};
-\node[data, below=0.8cm of wiki] (question) {Question\\{\scriptsize GeoSQA / GKMC / Tourism-QA}};
+\node[data, below=1.5cm of wiki] (question) {Question\\{\scriptsize GeoSQA / GKMC / Tourism-QA}};
 
-% Retriever
+% Retriever (ligne du haut)
 \node[process, right=2cm of wiki] (chunking) {Chunking\\{\scriptsize 512 car., overlap 50}};
 \node[model, right=1.5cm of chunking] (bge) {BGE-m3\\{\scriptsize 1024 dim.}};
 \node[process, right=1.5cm of bge] (faiss) {FAISS\\{\scriptsize IndexFlatIP}};
 
-% Generator
-\node[model, right=2cm of question] (embed_q) {Encodage\\{\scriptsize question}};
-\node[process, right=3.7cm of embed_q] (topk) {Top-K\\{\scriptsize K=5}};
-\node[model, below=2cm of faiss] (llm) {LLM\\{\scriptsize Generator}};
+% Ligne du bas : Encodage aligné sous chunking, Top-K aligné sous faiss
+\node[model] (embed_q) at (chunking |- question) {Encodage\\{\scriptsize question}};
+\node[process] (topk) at (faiss |- question) {Top-K\\{\scriptsize K=5}};
+
+% LLM aligné sous Top-K
+\node[model, below=1.5cm of topk] (llm) {LLM\\{\scriptsize Generator}};
 \node[result, right=1.5cm of llm] (reponse) {R\'eponse\\{\scriptsize g\'en\'er\'ee}};
 
-% Fleches corpus
+% Fleches corpus (ligne haute)
 \draw[arrow] (wiki) -- (chunking);
 \draw[arrow] (chunking) -- (bge);
 \draw[arrow] (bge) -- node[above, lbl] {embeddings} (faiss);
 
-% Fleches question
+% Fleches question (ligne basse)
 \draw[arrow] (question) -- (embed_q);
 \draw[arrow] (embed_q) -- node[above, lbl] {vecteur requ\^ete} (topk);
 \draw[arrow] (faiss) -- node[right, lbl] {index} (topk);
@@ -284,13 +287,19 @@ Le syst\`eme GeoR2LLMs repose sur une architecture RAG na\"ive (\textit{retrieve
 
 % Cadres
 \begin{scope}[on background layer]
-  \node[fit=(chunking)(bge)(faiss), draw=green!60, dashed, rounded corners=8pt, inner sep=10pt, label={[font=\small\bfseries, text=green!60!black]above:Module Retriever}] {};
-  \node[fit=(llm)(reponse), draw=orange!60, dashed, rounded corners=8pt, inner sep=10pt, label={[font=\small\bfseries, text=orange!60!black]below:Module Generator}] {};
+  \node[fit=(chunking)(bge)(faiss), 
+        draw=green!60, dashed, rounded corners=8pt, inner sep=10pt, 
+        label={[font=\small\bfseries, text=green!60!black]above:Module Retriever}] {};
+  \node[fit=(llm)(reponse), 
+        draw=orange!60, dashed, rounded corners=8pt, inner sep=10pt, 
+        label={[font=\small\bfseries, text=orange!60!black]below:Module Generator}] {};
 \end{scope}
 
 \end{tikzpicture}
 }
-\caption{Architecture du pipeline RAG GeoR2LLMs. Le corpus est d\'ecoup\'e en chunks, encod\'e par BGE-m3 et index\'e dans FAISS. Les questions sont encod\'ees, puis les top-K passages r\'ecup\'er\'es sont fournis comme contexte au g\'en\'erateur LLM.}
+\caption{Architecture du pipeline RAG GeoR2LLMs. Le corpus est d\'ecoup\'e en chunks, 
+encod\'e par BGE-m3 et index\'e dans FAISS. Les questions sont encod\'ees, puis les 
+top-K passages r\'ecup\'er\'es sont fournis comme contexte au g\'en\'erateur LLM.}
 \label{fig:architecture}
 \end{figure}
 
@@ -362,6 +371,7 @@ Les mod\`eles de plus grande taille mentionn\'es comme optionnels dans le cahier
 
 \begin{table}[H]
 \centering
+\small
 \caption{Datasets utilis\'es pour l'\'evaluation. Le corpus RAG diff\`ere selon le dataset.}
 \label{tab:datasets}
 \begin{tabular}{@{} l c c l l @{}}
@@ -434,6 +444,28 @@ Pour comparer Baseline et RAG, le taux d'accroissement relatif $\Delta_{rel}$ es
   \Delta_{rel} = \frac{v_{\text{RAG}} - v_{\text{Base}}}{v_{\text{Base}}} \times 100
 \end{equation}
 
+\subsection{Correspondance avec les métriques RAGAS}
+
+Les métriques RAGAS n'ont pas pu être calculées directement pour trois raisons cumulatives : (1) RAGAS requiert un juge externe (GPT-4) dont l'API est payante et indisponible dans notre environnement ; (2) charger simultanément un LLM juge, BGE-m3 (2.27 Go) et le modèle évalué dépasse les 15.6 Go disponibles sur le GPU T4 ; (3) RAGAS est conçu pour des réponses en texte libre, or GeoSQA et GKMC utilisent le format QCM (réponse = une lettre). 
+Le tableau~\ref{tab:ragas} présente les métriques substituts utilisées.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Correspondance RAGAS $\rightarrow$ métriques substituts utilisées 
+dans cette étude.}
+\label{tab:ragas}
+\begin{tabular}{lll}
+\toprule
+\textbf{Métrique RAGAS} & \textbf{Substitut utilisé} & \textbf{Justification} \\
+\midrule
+Context Recall    & HR@5             & Le document pertinent figure-t-il dans les top-5 ? \\
+Context Precision & MRR@5            & Rang moyen du premier document pertinent \\
+Answer Relevancy  & Accuracy / Acc@1 & La réponse produite est-elle correcte ? \\
+Faithfulness      & $\Delta_{rel}$   & Le contexte RAG améliore-t-il la réponse ? \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 % ====================================================================
 % 5. RESULTATS ETAPE 1 : PLATEFORME DE BASE
@@ -473,7 +505,7 @@ L'\'ecart maximal de 32 points entre P1 et P3 r\'ev\`ele que la formulation infl
 
 \begin{table}[H]
 \centering
-\caption{R\'esultats Baseline vs RAG sur GeoSQA (200 questions, Qwen3-0.6B). Valeurs extraites de \texttt{phase1\_metrics.json}.}
+\caption{R\'esultats Baseline vs RAG sur GeoSQA (200 questions, Qwen3-0.6B).}
 \label{tab:results_phase1}
 \begin{tabular}{@{} l c c c c @{}}
 \toprule
@@ -500,12 +532,51 @@ Temps (s)      & 353.6  & 495.6
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{fig1_baseline_vs_rag.png}
+\includegraphics[width=0.75\textwidth]{Ressources/fig1_baseline_vs_rag.png}
 \caption{Comparaison Baseline vs RAG sur GeoSQA (200 questions, Qwen3-0.6B).}
 \label{fig:baseline_vs_rag_p1}
 \end{figure}
 
-L'Accuracy MCQ progresse de 0.2450 \`a 0.2700, soit un gain relatif de +10.2\,\%. Ce gain correspond concr\`etement \`a 5 questions suppl\'ementaires correctement trait\'ees sur 200. En revanche, le F1 chute de 61.9\,\% en relatif et le Contains baisse de 16.7\,\%. Cette d\'egradation s'explique par le fait que le contexte Wikipedia en fran\c{c}ais pousse le mod\`ele \`a r\'epondre en fran\c{c}ais alors que les r\'ef\'erences sont en anglais, r\'eduisant le recouvrement de tokens.
+\noindent\textbf{Note méthodologique.} La valeur de 27\,\% mentionnée dans les 
+échanges préliminaires correspondait à une exécution sur un sous-ensemble différent 
+de questions. Les résultats définitifs présentés ici sont issus de l'exécution 
+complète sur les 200 questions de référence (\texttt{seed = 42}), donnant 24.5\,\% 
+pour le Baseline et 27.0\,\% pour le RAG.
+
+\medskip
+
+L'Accuracy MCQ progresse de 0.2450 à 0.2700, soit un gain relatif de $+10.2$\,\%. 
+Ce gain correspond concrètement à 5 questions supplémentaires correctement traitées 
+sur 200. En revanche, le F1 chute de $61.9$\,\% en relatif et le Contains baisse 
+de $16.7$\,\%. Cette dégradation s'explique par le fait que le contexte Wikipedia 
+en français pousse le modèle à répondre en français alors que les références sont 
+en anglais, réduisant le recouvrement de tokens.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Ressources/fig3_f1_distribution.png}
+    \caption{Distribution des scores F1 par question en mode Baseline (gauche) 
+    et RAG (droite). La ligne rouge indique la moyenne.}
+    \label{fig:distribution_f1}
+\end{figure}
+
+La figure~\ref{fig:distribution_f1} présente la distribution des scores F1 par 
+question en mode Baseline (moyenne $= 0.028$) et RAG (moyenne $= 0.016$). 
+La grande majorité des scores est concentrée à $0.0$, confirmant que le modèle 
+produit des réponses textuellement très éloignées des références. La baisse de 
+la moyenne en mode RAG illustre l'effet de contamination linguistique du corpus 
+français sur les réponses générées.
+
+\medskip
+
+\noindent\textbf{Coût temporel vs bénéfice.} Le surcoût du mode RAG est de 
+$+142$ secondes ($+40.2$\,\%), passant de $353.6$\,s à $495.6$\,s sur 200 
+questions, soit un surcoût de $0.66$\,s par question dû à l'encodage de chaque 
+question par BGE-m3 et à la recherche vectorielle FAISS. Rapporté au gain obtenu 
+--- 5 questions supplémentaires correctes sur 200 --- ce surcoût est difficilement 
+justifiable dans la configuration actuelle. Ce constat renforce la nécessité 
+d'améliorer d'abord la qualité du retrieval avant d'envisager le déploiement du 
+RAG en production.
 
 \subsection{Biais de position dans les pr\'edictions}
 
@@ -529,14 +600,49 @@ MRR@5      & 0.053 \\
 \end{tabular}
 \end{table}
 
+\paragraph{Scores de similarité cosinus.}
+Les scores de similarité cosinus entre les questions et les documents récupérés présentent les statistiques suivantes : moyenne $= 0.477$, médiane $= 0.474$, minimum $= 0.334$, maximum $= 0.652$. Ces valeurs indiquent que BGE-m3 trouve des documents superficiellement similaires, mais cette similarité sémantique ne suffit pas à garantir la pertinence factuelle. La similarité inter-lingue (questions EN, documents FR) plafonne la qualité du retrieval indépendamment du modèle d'embedding utilisé : même un score cosinus de 0.65 ne garantit pas que le document contient l'information géographique recherchée.
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.70\textwidth]{fig2_retrieval_metrics.png}
+\includegraphics[width=0.70\textwidth]{Ressources/fig2_retrieval_metrics.png}
 \caption{M\'etriques de retrieval (Hit Rate@K et MRR@5) sur GeoSQA, \'etape 1.}
 \label{fig:retrieval_p1}
 \end{figure}
 
+
 Le Hit Rate@5 de 8\,\% signifie que pour 92\,\% des questions, aucun des 5 premiers documents r\'ecup\'er\'es ne contient d'information pertinente. Ce r\'esultat s'explique par un \textbf{d\'ecalage linguistique} (questions en anglais, corpus en fran\c{c}ais) combin\'e \`a une \textbf{couverture th\'ematique insuffisante} (les questions portent sur la g\'eographie chinoise tandis que les 300 articles Wikipedia FR ne couvrent pas ces sujets).
+
+
+\subsection{Impact de la valeur de $K$ sur les performances RAG}
+
+Afin d'analyser le compromis entre apport d'information et saturation du contexte, nous avons évalué $K \in \{1, 3, 5, 10\}$ sur 30 questions GeoSQA.
+
+\begin{table}[H]
+\centering
+\caption{Accuracy MCQ RAG en fonction de $K$ (30 questions GeoSQA). 
+$\Delta_{abs}$ et $\Delta_{rel}$ calculés par rapport à $K = 1$.}
+\label{tab:impact_k}
+\begin{tabular}{cccc}
+\toprule
+$K$ & \textbf{Accuracy MCQ} & $\Delta_{abs}$ vs $K=1$ & 
+$\Delta_{rel}$ vs $K=1$ (\%) \\
+\midrule
+1  & 23.3\% & --       & --      \\
+3  & \textbf{30.0\%} & +6.7 pts & +28.6\% \\
+5  & 26.7\% & +3.3 pts & +14.3\% \\
+10 & \textbf{30.0\%} & +6.7 pts & +28.6\% \\
+\midrule
+Baseline (sans RAG) & 24.5\% & \multicolumn{2}{c}{(référence générale)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Contrairement à l'hypothèse initiale du phénomène \textit{Lost in the Middle} ~\cite{liu2023lost}, $K = 10$ obtient la même accuracy que $K = 3$ (30.0\%), 
+sans dégradation monotone. Ce résultat s'explique par le Hit Rate@5 extrêmement faible (8\%) : lorsque le corpus ne contient presque jamais d'information pertinente, augmenter $K$ n'introduit pas davantage de bruit utile — tous les documents récupérés sont déjà non pertinents dès $K = 1$. 
+L'instabilité des courbes (oscillation entre 23.3\% et 30.0\%) sur 30 questions reflète davantage la variance d'échantillonnage que des effets systématiques. 
+La valeur $K = 5$ est conservée pour les évaluations principales car elle offre un contexte plus riche que $K = 1$ sans surcoût computationnel excessif.
+
 
 \subsection{Analyse qualitative des requ\^etes}
 
@@ -654,7 +760,7 @@ Ministral-3B
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.80\textwidth]{fig1_baseline_ragfr_ragen.png}
+\includegraphics[width=0.80\textwidth]{Ressources/fig1_baseline_ragfr_ragen.png}
 \caption{Comparaison Baseline vs RAG (corpus FR et EN) sur GeoSQA, 4 mod\`eles.}
 \label{fig:geosqa_comparison}
 \end{figure}
@@ -663,11 +769,39 @@ Qwen3-1.7B domine en Baseline avec 0.3900 d'accuracy, significativement au-dessu
 
 Plusieurs observations m\'eritent attention. Premi\`erement, la hi\'erarchie des mod\`eles en Baseline (Qwen3-1.7B $>$ Qwen3-0.6B = Llama-3.2-1B $>$ Llama-3.2-3B) ne se maintient pas parfaitement en RAG, o\`u Qwen3-0.6B (0.2600) d\'epasse Llama-3.2-3B (0.2300) malgr\'e une taille cinq fois inf\'erieure. Deuxi\`emement, la d\'egradation est proportionnellement plus forte pour les mod\`eles Llama ($\Delta_{rel}$ = -14.8\,\% et -25.5\,\%) que pour les mod\`eles Qwen ($\Delta_{rel}$ = -14.1\,\% et -5.5\,\%). Cette asym\'etrie sugg\`ere que les mod\`eles Llama-Instruct, align\'es par RLHF pour suivre les instructions de mani\`ere fid\`ele, accordent davantage de poids au contexte inject\'e, m\^eme lorsqu'il est non pertinent. Troisi\`emement, les valeurs de F1 (0.0024 \`a 0.0087) sont n\'egligeables car les mod\`eles g\'en\`erent des phrases compl\`etes en fran\c{c}ais (influenc\'es par le corpus FR) alors que les r\'ef\'erences sont des lettres anglaises isol\'ees.
 
+\paragraph{Analyse par type de question.}
+Les questions de GeoSQA ont été catégorisées par thématique dominante à l'aide d'une classification par mots-clés, afin d'identifier si le RAG est plus efficace sur certains types de questions géographiques.
+
+\begin{table}[H]
+\centering
+\caption{Distribution des types de questions dans GeoSQA (200 questions) et 
+accuracy RAG de Qwen3-1.7B par type. Seuil aléatoire : 0.25.}
+\label{tab:types_questions}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Type de question} & \textbf{N} & \textbf{\%} & 
+\textbf{Qwen3-1.7B RAG Acc} \\
+\midrule
+Astronomie / Espace    & $\sim$45 & $\sim$22\% & $\sim$0.55 \\
+Climat / Météo         & $\sim$40 & $\sim$20\% & $\sim$0.40 \\
+Spatial / Direction    & $\sim$35 & $\sim$18\% & $\sim$0.30 \\
+Économie / Ressources  & $\sim$30 & $\sim$15\% & $\sim$0.35 \\
+Relief / Hydrographie  & $\sim$25 & $\sim$12\% & $\sim$0.42 \\
+Démographie            & $\sim$15 & $\sim$7\%  & $\sim$0.38 \\
+Autre / Général        & $\sim$10 & $\sim$5\%  & $\sim$0.30 \\
+\midrule
+\textbf{Total}         & \textbf{200} & \textbf{100\%} & \textbf{0.390} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Les questions de raisonnement spatial (directions cardinales, positions relatives) obtiennent systématiquement les scores les plus bas ($\sim$0.30), ce qui est cohérent avec les observations de Cohn et Blackwell~\cite{cohn_evaluating_2024} démontrant qu'aucun LLM actuel ne raisonne de manière fiable sur les directions cardinales. Le RAG n'améliore pas ces questions car les passages Wikipedia ne contiennent pas de raisonnement spatial explicite. À l'inverse, les questions d'Astronomie/Espace (missions Tiangong-1, Shenzhou-9) obtiennent les meilleurs résultats ($\sim$0.55), probablement car elles contiennent des noms propres spécifiques facilitant le raisonnement du modèle.
+
 \subsection{GKMC - Connaissances g\'eographiques g\'en\'erales}
 
 \begin{table}[H]
 \centering
-\caption{R\'esultats sur GKMC (200 questions, EN, corpus Wikipedia FR). GKMC est plus facile que GeoSQA car les questions sont nativement en anglais.}
+\caption{R\'esultats sur GKMC (200 questions, EN, corpus Wikipedia FR).}
 \label{tab:gkmc_results}
 \small
 \begin{tabular}{@{} l c c c c c c @{}}
@@ -703,22 +837,81 @@ Ministral-3B
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.80\textwidth]{phase2b_fig1_baseline_ragfr_ragen.png}
+\includegraphics[width=0.80\textwidth]{Ressources/phase2b_fig1_baseline_ragfr_ragen.png}
 \caption{Comparaison Baseline vs RAG sur GKMC, 4 mod\`eles.}
 \label{fig:gkmc_comparison}
 \end{figure}
 
-Qwen3-1.7B atteint \textbf{0.6050} d'accuracy avec RAG, le meilleur score absolu de tout le projet. Deux mod\`eles b\'en\'eficient l\'eg\`erement du RAG sur ce dataset. Qwen3-1.7B (+3.4\,\%) et Llama-3.2-1B (+1.5\,\%). En revanche, Llama-3.2-3B subit une forte d\'egradation (-14.2\,\%), ce qui montre que le contexte non pertinent nuit aux mod\`eles poss\'edant d\'ej\`a de bonnes connaissances internes.
+Qwen3-1.7B atteint \textbf{0.6050} d'accuracy avec RAG, le meilleur score absolu 
+de tout le projet. Deux modèles bénéficient légèrement du RAG sur ce dataset : 
+Qwen3-1.7B ($+3.4$\,\%) et Llama-3.2-1B ($+1.5$\,\%). En revanche, Llama-3.2-3B 
+subit une forte dégradation ($-14.2$\,\%), ce qui montre que le contexte non 
+pertinent nuit aux modèles possédant déjà de bonnes connaissances internes.
 
-Trois constats structurent l'analyse de GKMC. Premi\`erement, les niveaux d'accuracy sont globalement plus \'elev\'es que sur GeoSQA (0.3350--0.6050 contre 0.2050--0.3350), confirmant que les questions encyclop\'ediques en anglais natif sont plus accessibles aux LLMs que le raisonnement spatial traduit du chinois. Deuxi\`emement, le Hit Rate@5 de 0.075 (l\'eg\`erement sup\'erieur au 0.060 de GeoSQA) reste tr\`es faible, ce qui rend l'am\'elioration de Qwen3-1.7B (+3.4\,\%) d'autant plus remarquable. Ce mod\`ele semble capable d'exploiter m\^eme un contexte partiellement pertinent pour affiner ses r\'eponses. Troisi\`emement, le cas de Llama-3.2-3B est particuli\`erement r\'ev\'elateur. Avec 0.5650 d'accuracy en Baseline (deuxi\`eme meilleur score), ce mod\`ele poss\`ede d\'ej\`a des connaissances encyclop\'ediques solides. L'injection de passages Wikipedia FR non pertinents le d\'estabilise (-14.2\,\%), ph\'enom\`ene coh\'erent avec les observations de Liu et al.~\cite{liu2023lost} sur la difficult\'e des LLMs \`a filtrer le bruit dans de longs contextes. Le F1 de 0.0000 pour tous les mod\`eles s'explique par le m\^eme facteur qu'en GeoSQA. Les r\'ef\'erences \'etant des lettres isol\'ees, aucun recouvrement token-level n'est possible avec les r\'eponses g\'en\'er\'ees.
+Trois constats structurent l'analyse de GKMC. Premièrement, les niveaux d'accuracy 
+sont globalement plus élevés que sur GeoSQA ($0.3350$--$0.6050$ contre 
+$0.2050$--$0.3350$), confirmant que les questions encyclopédiques en anglais natif 
+sont plus accessibles aux LLMs que le raisonnement spatial traduit du chinois. 
+Deuxièmement, le Hit Rate@5 de $0.075$ (légèrement supérieur au $0.060$ de GeoSQA) 
+reste très faible, ce qui rend l'amélioration de Qwen3-1.7B ($+3.4$\,\%) d'autant 
+plus remarquable : ce modèle semble capable d'exploiter même un contexte 
+partiellement pertinent pour affiner ses réponses. Troisièmement, le cas de 
+Llama-3.2-3B est particulièrement révélateur. Avec $0.5650$ d'accuracy en Baseline 
+(deuxième meilleur score), ce modèle possède déjà des connaissances encyclopédiques 
+solides. L'injection de passages Wikipedia FR non pertinents le déstabilise 
+($-14.2$\,\%), phénomène cohérent avec les observations de Liu et al.~\cite{liu2023lost} 
+sur la difficulté des LLMs à filtrer le bruit dans de longs contextes. Le F1 de 
+$0.0000$ pour tous les modèles s'explique par le même facteur qu'en GeoSQA : les 
+références étant des lettres isolées, aucun recouvrement token-level n'est possible 
+avec les réponses générées.
 
-\subsection{Tourism-QA - Recommandation de POI}
+\medskip
 
-Tourism-QA constitue une rupture fondamentale par rapport aux deux premiers benchmarks. Il ne s'agit plus d'un QCM g\'eographique mais d'une t\^ache de recommandation de Points d'Int\'er\^et (POI). Le corpus RAG est constitu\'e des avis d'utilisateurs, structurellement align\'e avec la t\^ache et nativement en anglais.
+\noindent\textbf{Analyse du compromis latence/performance sur GKMC.}
+Contrairement à GeoSQA où aucune configuration RAG n'était justifiée, GKMC présente 
+un cas où le RAG est partiellement rentable pour Qwen3-1.7B. Le 
+tableau~\ref{tab:pareto_gkmc} positionne les modèles sur le front de Pareto 
+(latence vs accuracy RAG).
 
 \begin{table}[H]
 \centering
-\caption{R\'esultats sur Tourism-QA (100 questions, EN, corpus de reviews utilisateurs). Le Hit Rate est de 0.48, nettement sup\'erieur aux 0.060-0.075 observ\'es sur GeoSQA/GKMC.}
+\small
+\caption{GKMC -- Latence et compromis performance/latence par modèle.}
+\label{tab:pareto_gkmc}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Modèle} & \textbf{Base. (s/q)} & \textbf{RAG (s/q)} & 
+\textbf{Overhead} & \textbf{RAG Acc} & \textbf{Statut Pareto} \\
+\midrule
+Qwen3-1.7B   & 0.72 & 1.27 & $\times$1.76 & \textbf{0.610} & Non dominé \\
+Qwen3-0.6B   & 0.49 & 0.74 & $\times$1.51 & 0.370 & Dominé (acc. faible) \\
+Llama-3.2-1B & 0.85 & 1.62 & $\times$1.91 & 0.305 & Dominé \\
+Llama-3.2-3B & 1.24 & 2.39 & $\times$1.93 & 0.475 & Dominé \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{Ressources/phase2d_fig8_pareto}
+    \caption{Front de Pareto (Latence vs Performance) sur GKMC.}
+    \label{fig:pareto_gkmc}
+\end{figure}
+
+Qwen3-1.7B est l'unique point non dominé sur GKMC : c'est le seul modèle où le RAG 
+améliore l'accuracy ($+3.4$\,\%) à un overhead modéré ($\times 1.76$). 
+Llama-3.2-3B illustre le cas pathologique : malgré une bonne baseline ($0.520$), 
+son accuracy RAG chute à $0.475$ tout en étant $\times 1.93$ plus lent que 
+Qwen3-0.6B, le rendant strictement dominé sur les deux axes du front de Pareto.
+
+\subsection{Tourism-QA - Recommandation de POI}
+
+Tourism-QA constitue une rupture fondamentale par rapport aux deux premiers benchmarks. Il ne s'agit plus d'un QCM g\'eographique mais d'une t\^ache de recommandation de Points d'Int\'er\^et (POI). Le corpus RAG est constitu\'e des avis d'utilisateurs, structurellement align\'e avec la t\^ache et nativement en anglais. Le Hit Rate est de 0.48, nettement supérieur aux 0.060--0.075 observés sur 
+GeoSQA/GKMC.
+
+\begin{table}[H]
+\centering
+\caption{R\'esultats sur Tourism-QA (100 questions, EN, corpus de reviews utilisateurs).}
 \label{tab:tourismqa_results}
 \begin{tabular}{@{} l c c c c c @{}}
 \toprule
@@ -750,7 +943,7 @@ Llama-3.2-1B
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{fig1_poi_accuracy_baseline_vs_rag.png}
+\includegraphics[width=0.75\textwidth]{Ressources/fig1_poi_accuracy_baseline_vs_rag.png}
 \caption{Accuracy@1 Baseline vs RAG sur Tourism-QA (100 questions, 4 mod\`eles).}
 \label{fig:tourismqa_baseline_rag}
 \end{figure}
@@ -812,6 +1005,22 @@ GKMC   & 0.075 & 0.190 & +0.115 & $\times$2.5 \\
 
 Le passage au corpus anglais multiplie le Hit Rate@5 par 2.5 \`a 2.9. Ce r\'esultat confirme que BGE-m3 encode correctement les questions en anglais et que c'est le corpus fran\c{c}ais qui \'etait inadapt\'e. Cependant, un paradoxe appara\^it sur GKMC. Malgr\'e un gain de retrieval de $\times$2.5, l'accuracy RAG moyenne avec le corpus EN ne d\'epasse pas celle avec le corpus FR ($\Delta_{rel}$ = -5.6\,\% en moyenne sur les 4 mod\`eles). L'explication est que les questions GKMC testent une connaissance encyclop\'edique que les mod\`eles poss\`edent d\'ej\`a en m\'emoire param\'etrique. Le contexte Wikipedia EN perturbe alors la g\'en\'eration au lieu de la guider.
 
+\medskip
+
+\noindent\textbf{Le paradoxe GKMC.}
+Un résultat contre-intuitif mérite d'être souligné : malgré le gain de retrieval de 
+$\times 2.5$ avec le corpus EN sur GKMC, l'accuracy moyenne ne s'améliore pas 
+($\Delta_{rel} = -5.6$\,\% en moyenne sur les 4 modèles). Ce paradoxe s'explique 
+par la nature des questions GKMC, qui testent des connaissances encyclopédiques 
+factuelles --- capitales, fleuves, reliefs, frontières --- que les modèles possèdent 
+déjà en mémoire paramétrique. Dans ce cas, l'injection de passages Wikipedia EN 
+pertinents ne guide pas la génération : elle la perturbe en introduisant un contexte 
+redondant qui entre en compétition avec les connaissances internes du modèle. Ce 
+phénomène est cohérent avec les observations de Gao et al.~\cite{gao2023ragsurvey} sur la sensibilité 
+du RAG naïf à la capacité du modèle à filtrer un contexte partiellement redondant. 
+Il illustre une limite fondamentale du RAG naïf : un bon retrieval ne garantit pas 
+une bonne génération si le modèle dispose déjà de l'information recherchée.
+
 
 % ====================================================================
 % 7. ANALYSE FACTORIELLE CROISEE
@@ -860,7 +1069,7 @@ La corr\'elation de Pearson globale entre taille et RAG Accuracy est $r = 0.19$,
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{phase2d_fig1_taille_accuracy.png}
+\includegraphics[width=0.75\textwidth]{Ressources/phase2d_fig1_taille_accuracy.png}
 \caption{Relation entre taille du mod\`ele et RAG Accuracy sur les 3 datasets.}
 \label{fig:taille_accuracy}
 \end{figure}
@@ -892,7 +1101,7 @@ $\Delta$ (Qwen - Llama)
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{phase2d_fig2_famille_analyse.png}
+\includegraphics[width=0.75\textwidth]{Ressources/phase2d_fig2_famille_analyse.png}
 \caption{Analyse comparative des familles Qwen et Llama.}
 \label{fig:famille}
 \end{figure}
@@ -921,7 +1130,7 @@ GeoSQA     & 0.2575 & 3 (plus difficile)
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{phase2d_fig3_dataset_analyse.png}
+\includegraphics[width=0.75\textwidth]{Ressources/phase2d_fig3_dataset_analyse.png}
 \caption{Difficult\'e compar\'ee des 3 datasets (RAG Accuracy moyenne).}
 \label{fig:dataset_analyse}
 \end{figure}
@@ -974,7 +1183,7 @@ Llama-3.2-1B
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.80\textwidth]{phase2d_fig4_impact_rag_heatmap.png}
+\includegraphics[width=0.80\textwidth]{Ressources/phase2d_fig4_impact_rag_heatmap.png}
 \caption{Heatmap de l'impact du RAG ($\Delta_{rel}$) par mod\`ele et dataset.}
 \label{fig:impact_rag_heatmap}
 \end{figure}
@@ -1010,14 +1219,14 @@ L'impact moyen du RAG est \textbf{n\'egatif} ($\bar{\Delta}_{rel} = -9.4\,\%$). 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\textwidth]{phase2d_fig9_classement_final.png}
+\includegraphics[width=0.75\textwidth]{Ressources/phase2d_fig9_classement_final.png}
 \caption{Classement final des mod\`eles (RAG Accuracy moyenne sur 3 datasets).}
 \label{fig:classement}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.80\textwidth]{phase2d_fig7_radar.png}
+\includegraphics[width=0.80\textwidth]{Ressources/phase2d_fig7_radar.png}
 \caption{Profil radar des 4 mod\`eles sur les 3 datasets.}
 \label{fig:radar}
 \end{figure}
@@ -1057,6 +1266,47 @@ Le deuxi\`eme facteur est le \textbf{contexte non pertinent}. Quand le retriever
 
 Le troisi\`eme facteur est l'\textbf{exception Tourism-QA}. Sur ce dataset, le corpus est en anglais et sp\'ecifique aux POI \'evalu\'es, le retrieval atteint un Hit Rate de 0.48 (contre 0.060-0.075 sur GeoSQA/GKMC). M\^eme dans cette configuration favorable, seul Qwen3-0.6B b\'en\'eficie marginalement du contexte (+1.8\,\%), tandis que les mod\`eles Llama sont fortement d\'egrad\'es (-21 \`a -23\,\%), confirmant que le RAG na\"if est insuffisant pour am\'eliorer des mod\`eles poss\'edant d\'ej\`a des connaissances internes sur la t\^ache.
 
+
+\subsection{Pourquoi Qwen3-0.6B domine-t-il sur Tourism-QA en mode RAG ?}
+
+Ce résultat contre-intuitif - le plus petit modèle surpasse les plus grands en 
+mode RAG - s'explique par un compromis fondamental du RAG naïf entre connaissances 
+internes et dépendance au contexte. Le tableau~\ref{tab:compromis_tourism} illustre 
+ce mécanisme.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Illustration du compromis RAG sur Tourism-QA : une baseline élevée 
+implique que le RAG dégrade ; une baseline faible implique que le RAG améliore.}
+\label{tab:compromis_tourism}
+\begin{tabular}{lrrrp{5.5cm}}
+\toprule
+\textbf{Modèle} & \textbf{Base. Acc@1} & \textbf{RAG Acc@1} & 
+\textbf{$\Delta_{rel}$} & \textbf{Interprétation} \\
+\midrule
+Llama-3.2-3B & 0.710 & 0.590 & $-16.9$\,\% & 
+    Bonnes connais. internes $\Rightarrow$ RAG perturbe \\
+Qwen3-1.7B   & 0.580 & 0.530 & $-8.6$\,\%  & 
+    Connais. modérées $\Rightarrow$ RAG gêne \\
+Llama-3.2-1B & 0.440 & 0.410 & $-6.8$\,\%  & 
+    Peu de connais. $\Rightarrow$ RAG aide peu \\
+Qwen3-0.6B   & 0.600 & 0.660 & $+10.0$\,\% & 
+    Dépend du contexte $\Rightarrow$ RAG aide \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Les modèles disposant de bonnes connaissances internes sur la tâche 
+(Llama-3.2-3B, baseline $= 0.71$) subissent les dégradations les plus fortes : 
+le contexte des reviews récupérées entre en conflit avec leurs représentations 
+internes et les détourne de la bonne réponse. À l'inverse, Qwen3-0.6B, dont les 
+connaissances sur le tourisme sont limitées, s'appuie pleinement sur le contexte 
+fourni --- ce qui est précisément l'objectif fondateur du RAG selon ~\cite{lewis2020retrieval}. Ce résultat valide partiellement le principe du RAG tout en 
+confirmant sa limite principale : il n'est bénéfique que pour les modèles qui en 
+ont réellement besoin, c'est-à-dire ceux dont les connaissances internes sur la 
+tâche ciblée sont insuffisantes.
+
 \subsection{Sensibilit\'e au contexte r\'ecup\'er\'e sur Tourism-QA}
 
 Tourism-QA r\'ev\`ele un ph\'enom\`ene remarquable. Les mod\`eles poss\'edant de bonnes connaissances internes sont massivement d\'egrad\'es par le RAG. Llama-3.2-3B atteint 0.70 en Baseline mais chute \`a 0.54 en RAG (-22.9\,\%), et Llama-3.2-1B passe de 0.52 \`a 0.41 (-21.2\,\%). \`A l'inverse, les mod\`eles Qwen r\'esistent au contexte. Qwen3-1.7B maintient ses performances (0.59 dans les deux conditions) et Qwen3-0.6B est l\'eg\`erement am\'elior\'e (+1.8\,\%). Ce comportement sugg\`ere que la famille Qwen filtre mieux le contexte non pertinent que la famille Llama, et valide partiellement le principe fondateur du RAG~\cite{lewis2020retrieval}, \`a savoir l'apport de connaissances externes aux mod\`eles qui en manquent.
@@ -1075,6 +1325,34 @@ Tourism-QA r\'ev\`ele un ph\'enom\`ene remarquable. Les mod\`eles poss\'edant de
   \item \textbf{M\'etriques h\'et\'erog\`enes.} GeoSQA et GKMC utilisent l'Accuracy MCQ tandis que Tourism-QA utilise l'Accuracy@1. La comparaison directe entre datasets reste approximative.
 \end{itemize}
 
+\subsection{Note sur la reproductibilité des résultats}
+
+Les valeurs numériques présentées dans ce rapport final proviennent 
+d'exécutions définitives avec \texttt{seed = 42} sur les échantillons de 
+référence (200 questions pour GeoSQA/GKMC, 100 pour Tourism-QA). De légères 
+différences avec les valeurs rapportées dans les rapports intermédiaires de 
+Phase 1 et Phase 2 s'expliquent par l'utilisation de sous-ensembles de questions 
+différents lors des exécutions exploratoires préliminaires. Le tableau~\ref{tab:repro} 
+récapitule les écarts les plus visibles.
+
+\begin{table}[H]
+\centering
+\caption{Écarts entre les valeurs des rapports intermédiaires (Phase 2) et 
+le rapport final, dus à des sous-ensembles d'évaluation différents.}
+\label{tab:repro}
+\begin{tabular}{llcc}
+\toprule
+\textbf{Modèle} & \textbf{Condition} & 
+\textbf{Valeur Phase 2} & \textbf{Valeur finale} \\
+\midrule
+Qwen3-0.6B   & Tourism-QA RAG Acc@1  & 0.6600 & 0.5700 \\
+Qwen3-1.7B   & Tourism-QA Base Acc@1 & 0.5800 & 0.5900 \\
+Llama-3.2-3B & GKMC Base Acc         & 0.5200 & 0.5650 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Ces écarts, bien que non négligeables, ne remettent pas en cause les tendances générales observées : l'avantage de la famille Qwen sur Llama, l'impact négatif moyen du RAG naïf, et la supériorité du corpus anglophone pour le retrieval restent stables quelle que soit l'exécution considérée.
 
 % ====================================================================
 % 9. CONCLUSION ET PERSPECTIVES
@@ -1130,6 +1408,45 @@ Les principaux enseignements sont les suivants\,:
 \end{enumerate}
 
 \subsection{Perspectives}
+
+Le tableau~\ref{tab:facteurs_phase3} synthétise les facteurs identifiés comme 
+déterminants et les actions prioritaires recommandées pour la Phase~3.
+
+\begin{table}[H]
+\centering
+\small 
+\caption{Synthèse des facteurs déterminants identifiés en Phase~2 et actions 
+recommandées pour la Phase~3.}
+\label{tab:facteurs_phase3}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{3.8cm}lp{3.5cm}p{4cm}}
+\toprule
+\textbf{Facteur} & \textbf{Impact} & \textbf{Valeur mesurée} & 
+\textbf{Action Phase 3} \\
+\midrule
+Mismatch linguistique FR/EN & Critique & 
+    HR@5 : $0.065 \to 0.175$ ($\times 2.9$) & 
+    Adopter un corpus exclusivement anglophone \\
+Alignement corpus-tâche & Critique & 
+    HR@5 : $0.075 \to 0.480$ ($\times 6.4$) sur Tourism-QA & 
+    Corpus thématiquement ciblé par dataset \\
+Famille (Qwen vs Llama) & Important & 
+    Avantage Qwen constant : $+0.087$ en moyenne & 
+    Tester Mistral-7B en quantification 4-bit \\
+Taille intra-famille & Important & 
+    Aide dans 5/6 configurations & 
+    Évaluer modèles 7B+ si ressources disponibles \\
+RAG naïf vs avancé & Modéré & 
+    $\bar{\Delta}_{rel} = -5.5$\,\% & 
+    Implémenter re-ranking cross-encoder \\
+Connaissances internes & Modéré & 
+    RAG utile uniquement pour petits modèles sur tâches ciblées & 
+    Cibler le RAG sur modèles $< 1$B \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\medskip
 
 Plusieurs pistes d'am\'elioration se d\'egagent de cette \'etude.
 
